@@ -85,5 +85,8 @@ public class NobesTimetableLab implements Serializable {
     @TableField("Fri")
     private String Fri;
 
+    @TableField("CourseId")
+    private Integer CourseId;
+
 
 }

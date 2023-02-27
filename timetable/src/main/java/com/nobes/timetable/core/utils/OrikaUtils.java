@@ -14,10 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OrikaUtils {
 
     private static final MapperFactory FACTORY = new DefaultMapperFactory.Builder().build();
-
-    /**
-     * 缓存实例集合
-     */
     private static final Map<String, MapperFacade> CACHE_MAPPER = new ConcurrentHashMap<>();
 
     private final MapperFacade mapper;
@@ -27,14 +23,14 @@ public class OrikaUtils {
     }
 
     /**
-     * 转换实体函数
+     * convert entity
      *
-     * @param sourceEntity 源实体
-     * @param targetClass  目标类对象
-     * @param refMap       配置源类与目标类不同字段名映射
-     * @param <S>          源泛型
-     * @param <T>          目标泛型
-     * @return 目标实体
+     * @param sourceEntity
+     * @param targetClass
+     * @param refMap
+     * @param <S>
+     * @param <T>
+     * @return
      */
     public static <S, T> T convert(S sourceEntity, Class<T> targetClass, Map<String, String> refMap) {
         if (sourceEntity == null) {
@@ -44,13 +40,13 @@ public class OrikaUtils {
     }
 
     /**
-     * 转换实体函数
+     * convert entity
      *
-     * @param sourceEntity 源实体
-     * @param targetClass  目标类对象
-     * @param <S>          源泛型
-     * @param <T>          目标泛型
-     * @return 目标实体
+     * @param sourceEntity
+     * @param targetClass
+     * @param <S>
+     * @param <T>
+     * @return
      */
     public static <S, T> T convert(S sourceEntity, Class<T> targetClass) {
         return convert(sourceEntity, targetClass, null);
@@ -75,10 +71,10 @@ public class OrikaUtils {
     }
 
     /**
-     * 属性名称不一致可用
+     * attribute with different names
      *
-     * @param source 原对象
-     * @param target 目标对象
+     * @param source
+     * @param target
      * @return OrikaUtils
      */
     private static synchronized <V, P> OrikaUtils classMap(Class<V> source, Class<P> target, Map<String, String> refMap) {
@@ -95,10 +91,10 @@ public class OrikaUtils {
 
 
     /**
-     * Orika复制对象
+     * Orika copy
      *
-     * @param source 源数据
-     * @param target 目标对象
+     * @param source
+     * @param target
      * @return target
      */
     private <V, P> P map(V source, Class<P> target) {

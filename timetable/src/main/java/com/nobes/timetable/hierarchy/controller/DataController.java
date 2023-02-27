@@ -26,7 +26,7 @@ public class DataController {
     @PostMapping("/getCourse")
     public ResultBody getCourse(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
 
-        return courseService.getCourse(courseDTO);
+        return ResultBody.success(courseService.getCourse(courseDTO));
 
     }
 }

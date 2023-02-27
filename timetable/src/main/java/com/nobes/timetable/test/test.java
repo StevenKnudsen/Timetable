@@ -1,10 +1,19 @@
 package com.nobes.timetable.test;
 
 import com.nobes.timetable.core.utils.OrikaUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class test {
+
+    public test() {
+    }
 
     public static void main(String[] args) {
 
@@ -12,13 +21,32 @@ public class test {
 
         System.out.println(converttest().getCourse());
 
-        ArrayList<Object> objects = new ArrayList<>();
-        Student student = new Student("xiang", "21", "1111111");
-        objects.add(student);
-        Teacher teacher = new Teacher();
-        objects.add(teacher);
-        System.out.println(objects);
+        test test1 = new test();
 
+        HashMap maptest = test1.maptest();
+        HashMap map = test1.maptest1();
+        System.out.println(maptest);
+        System.out.println(map);
+
+    }
+
+    private HashMap maptest() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("Xiangpeng", "Jiage");
+        map.put("Ji", "Han");
+        map.put("husband", "wife");
+        return map;
+    }
+
+    private HashMap maptest1() {
+        HashMap<String, Map<String, String>> map = new HashMap<>();
+        HashMap<String, String> hashMap = new HashMap<>();
+
+        hashMap.put("Xiangpeng", "Jiage");
+        hashMap.put("Ji", "Han");
+        hashMap.put("husband", "wife");
+        map.put("key",hashMap);
+        return map;
     }
 
     private static Teacher converttest() {

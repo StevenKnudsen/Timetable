@@ -4,13 +4,14 @@ package com.nobes.timetable.hierarchy.logic;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
+import com.nobes.timetable.hierarchy.domain.NobesTimetableLab;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableLabService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableLectureService;
+import com.nobes.timetable.hierarchy.service.INobesTimetableSemService;
 import com.nobes.timetable.hierarchy.vo.LabAndSem;
-import com.nobes.timetable.hierarchy.vo.Seminar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,11 +36,16 @@ public class CourseService {
     @Resource
     INobesTimetableLabService iNobesTimetableLabService;
 
+    @Resource
+    INobesTimetableSemService iNobesTimetableSemService;
 
     @Autowired
     SeminarService seminarService;
 
-    public ResultBody getCourse(CourseDTO courseDTO) {
+    @Autowired
+    LabService labService;
+
+    public HashMap getCourse(CourseDTO courseDTO) {
         String courseName = courseDTO.getCourseName();
 
         Pattern pattern = Pattern.compile("\\d+");
@@ -80,42 +86,67 @@ public class CourseService {
 
         Integer courseId = course.getCourseId();
 
-//        if (hasLec) {
+        // map for courses whose main part is lecture
         HashMap<String, HashMap<String, HashMap<String, ArrayList<LabAndSem>>>> map = new HashMap<>();
         HashMap<String, HashMap<String, ArrayList<LabAndSem>>> courseMap = new HashMap<>();
-        HashMap<String, ArrayList<LabAndSem>> lectureMap = new HashMap<>();
+        HashMap<String, ArrayList<LabAndSem>> subMap = new HashMap<>();
 
-        List<NobesTimetableLecture> sectionList = iNobesTimetableLectureService.list(new LambdaQueryWrapper<NobesTimetableLecture>()
-                .eq(NobesTimetableLecture::getCourseId, courseId));
+        // map for courses whose main part is lab
 
 
-        if (hasSem) {
-            for (NobesTimetableLecture lecture : sectionList) {
-                String sect = lecture.getSect();
-                log.info(sect);
-                StringBuilder stringBuilder = new StringBuilder();
-                String key = subject + " " + catalog + " " + sect + " Sem";
+        // if the main part of the course if a lecture
+        if (hasLec) {
 
-                log.info(key);
+            List<NobesTimetableLecture> sectionList = iNobesTimetableLectureService.list(new LambdaQueryWrapper<NobesTimetableLecture>()
+                    .eq(NobesTimetableLecture::getCourseId, courseId));
 
-                ArrayList<LabAndSem> seminar = seminarService.getSeminar(lecture);
+            // if the course has seminars
+            if (hasSem) {
+                for (NobesTimetableLecture lecture : sectionList) {
+                    String sect = lecture.getSect();
+                    String key = " Sem";
 
-                lectureMap.put(key, seminar);
+                    ArrayList<LabAndSem> seminar = seminarService.getSeminar(lecture, iNobesTimetableSemService);
 
-                String key1 = subject + " " + catalog + " " + sect;
-                log.info(key1);
-                courseMap.put(key1, lectureMap);
+                    subMap.put(key, seminar);
 
+                    String key1 = subject + " " + catalog + " " + sect;
+                    log.info(key1);
+                    courseMap.put(key1, subMap);
+
+                }
+
+                map.put(courseName, courseMap);
             }
 
-            map.put(courseName, courseMap);
-        } else {
-            map.put(courseName, null);
+            // if the course has labs
+            if (hasLab) {
+                for (NobesTimetableLecture lecture : sectionList) {
+                    String sect = lecture.getSect();
+                    String key = " Lab";
+
+                    ArrayList<LabAndSem> lab = labService.getLab(lecture, iNobesTimetableLabService);
+
+                    subMap.put(key, lab);
+
+                    String key1 = subject + " " + catalog + " " + sect;
+                    log.info(key1);
+                    courseMap.put(key1, subMap);
+
+                }
+
+                map.put(courseName, courseMap);
+            }
+
+        } else if (hasLab) {
+            List<NobesTimetableLab> labList = iNobesTimetableLabService.list(new LambdaQueryWrapper<NobesTimetableLab>()
+                    .eq(NobesTimetableLab::getCourseId, courseId));
+
+
+
         }
-//        }
 
-
-        return ResultBody.success(map);
-
+        return map;
     }
+
 }

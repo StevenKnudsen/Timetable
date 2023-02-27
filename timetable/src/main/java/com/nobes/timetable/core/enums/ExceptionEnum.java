@@ -8,7 +8,7 @@ public enum ExceptionEnum implements BaseErrorInfoInterface {
 
     private Integer respCode;
     /**
-     * 错误描述
+     * mistake description
      */
     private String respDesc;
 
