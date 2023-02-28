@@ -16,9 +16,6 @@ import java.util.Map;
 @Slf4j
 public class ScrapService {
 
-    @Autowired
-    LectureService lectureService;
-
     public Map<String, ArrayList> getCourses(Document document) {
 
         Map<String, ArrayList> sequenceMap = new HashMap<>();
@@ -86,12 +83,10 @@ public class ScrapService {
                 for (int x = 0; x < courseList.size(); x++) {
 
                     if (courseList.get(x).substring(courseList.get(x).length() - 2).equals("OR")) {
-                        log.info(courseList.get(x));
                         temp += courseList.get(x);
                         temp += " ";
                         deleteList.add(x);
                     } else {
-                        log.info(courseList.get(x));
                         String comb = temp + courseList.get(x);
                         courseList.set(x, comb.substring(0,comb.length() - 1));
                         temp = "";

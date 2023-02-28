@@ -25,8 +25,6 @@ public class Course {
 
     private String description;
 
-    private String AccreditUnits;
-
     private String prerequisite;
 
     private String corequisite;

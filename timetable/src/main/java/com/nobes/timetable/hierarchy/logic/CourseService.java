@@ -4,16 +4,12 @@ package com.nobes.timetable.hierarchy.logic;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.core.utils.OrikaUtils;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableLab;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableSem;
+import com.nobes.timetable.hierarchy.domain.*;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
-import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
-import com.nobes.timetable.hierarchy.service.INobesTimetableLabService;
-import com.nobes.timetable.hierarchy.service.INobesTimetableLectureService;
-import com.nobes.timetable.hierarchy.service.INobesTimetableSemService;
+import com.nobes.timetable.hierarchy.service.*;
+import com.nobes.timetable.hierarchy.vo.Course;
 import com.nobes.timetable.hierarchy.vo.LabAndSem;
+import com.nobes.timetable.hierarchy.vo.Lecture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,6 +36,9 @@ public class CourseService {
 
     @Resource
     INobesTimetableSemService iNobesTimetableSemService;
+
+    @Resource
+    INobesTimetableAuService iNobesTimetableAuService;
 
     @Autowired
     SeminarService seminarService;
@@ -88,13 +87,15 @@ public class CourseService {
 
         Integer courseId = course.getCourseId();
 
+        Course courseObj = getCourseObj(course);
+
         // map for courses whose main part is lecture
-        HashMap<String, HashMap<String, HashMap<String, ArrayList<LabAndSem>>>> map = new HashMap<>();
-        HashMap<String, HashMap<String, ArrayList<LabAndSem>>> courseMap = new HashMap<>();
+        HashMap<Course, HashMap<Lecture, HashMap<String, ArrayList<LabAndSem>>>> map = new HashMap<>();
+        HashMap<Lecture, HashMap<String, ArrayList<LabAndSem>>> courseMap = new HashMap<>();
         HashMap<String, ArrayList<LabAndSem>> subMap = new HashMap<>();
 
         // map for courses whose main part is lab or sem
-        HashMap<String, HashMap<String, LabAndSem>> map1 = new HashMap<>();
+        HashMap<Course, HashMap<String, LabAndSem>> map1 = new HashMap<>();
         HashMap<String, LabAndSem> map2 = new HashMap<>();
 
         // for errors
@@ -113,6 +114,9 @@ public class CourseService {
             // if the course has seminars
             if (hasSem) {
                 for (NobesTimetableLecture lecture : sectionList) {
+
+                    Lecture lectureObj = getLectureObj(lecture);
+
                     String sect = lecture.getSect();
                     String key = " Sem";
 
@@ -120,17 +124,17 @@ public class CourseService {
 
                     subMap.put(key, seminar);
 
-                    String key1 = subject + " " + catalog + " " + sect;
-                    courseMap.put(key1, subMap);
+                    courseMap.put(lectureObj, subMap);
 
                 }
-
-                map.put(courseName, courseMap);
             }
 
             // if the course has labs
             if (hasLab) {
                 for (NobesTimetableLecture lecture : sectionList) {
+
+                    Lecture lectureObj = getLectureObj(lecture);
+
                     String sect = lecture.getSect();
                     String key = " Lab";
 
@@ -138,13 +142,13 @@ public class CourseService {
 
                     subMap.put(key, lab);
 
-                    String key1 = subject + " " + catalog + " " + sect;
-                    courseMap.put(key1, subMap);
+                    courseMap.put(lectureObj, subMap);
 
                 }
 
-                map.put(courseName, courseMap);
             }
+
+            map.put(courseObj, courseMap);
 
         } else if (hasLab) {
             List<NobesTimetableLab> labList = iNobesTimetableLabService.list(new LambdaQueryWrapper<NobesTimetableLab>()
@@ -195,7 +199,8 @@ public class CourseService {
                 map2.put(labName.toString(), lab1);
             }
 
-            map1.put(courseName, map2);
+            map1.put(courseObj, map2);
+
         } else if (hasSem) {
 
             List<NobesTimetableSem> semList = iNobesTimetableSemService.list(new LambdaQueryWrapper<NobesTimetableSem>()
@@ -246,7 +251,8 @@ public class CourseService {
                 map2.put(labName.toString(), sem1);
             }
 
-            map1.put(courseName, map2);
+            map1.put(courseObj, map2);
+
         } else {
             map3.put("error", "Invalid Course");
         }
@@ -258,6 +264,73 @@ public class CourseService {
         } else {
             return map3;
         }
+    }
+
+    public Course getCourseObj(NobesTimetableCourse nobesTimetableCourse) {
+        Course course = OrikaUtils.convert(nobesTimetableCourse, Course.class);
+
+        String courseName = course.getSubject() + " " + course.getCatalog();
+        NobesTimetableAu courseAU = iNobesTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
+                .eq(NobesTimetableAu::getCourseName, courseName));
+
+        HashMap<String, Double> auCount = new HashMap<>();
+        auCount.put("Math", Double.parseDouble(courseAU.getMath()));
+        auCount.put("Natural Sciences", Double.parseDouble(courseAU.getNaturalSciences()));
+        auCount.put("Complimentary Studies", Double.parseDouble(courseAU.getComplimentaryStudies()));
+        auCount.put("Engineering Science", Double.parseDouble(courseAU.getEngineeringScience()));
+        auCount.put("Engineering Design", Double.parseDouble(courseAU.getEngineeringDesign()));
+        auCount.put("Others", Double.parseDouble(courseAU.getOther()));
+        auCount.put("ES(sp)", Double.parseDouble(courseAU.getESsp()));
+        auCount.put("ED(sp)", Double.parseDouble(courseAU.getEDsp()));
+
+        course.setAU_Count(auCount);
+
+        return  course;
+    }
+
+    public Lecture getLectureObj(NobesTimetableLecture nobesTimetableLecture) {
+        Lecture lecture = OrikaUtils.convert(nobesTimetableLecture, Lecture.class);
+
+
+        String lectureName = nobesTimetableLecture.getSubject() + " "
+                + nobesTimetableLecture.getCatalog() + " "
+                + nobesTimetableLecture.getComponent() + " "
+                + nobesTimetableLecture.getSect();
+
+        lecture.setLecName(lectureName);
+
+        StringBuilder duration = new StringBuilder();
+
+        String mon = nobesTimetableLecture.getMon();
+        String tues = nobesTimetableLecture.getTues();
+        String wed = nobesTimetableLecture.getWed();
+        String thurs = nobesTimetableLecture.getThrus();
+        String fri = nobesTimetableLecture.getFri();
+
+        HashMap<String, String> weekdays = new HashMap<>();
+        weekdays.put("Monday", mon);
+        weekdays.put("Tuesday", tues);
+        weekdays.put("Wednesday", wed);
+        weekdays.put("Thursday", thurs);
+        weekdays.put("Friday", fri);
+
+        weekdays.forEach((key, value) -> {
+            if (value.equals("Y")) {
+                duration.append(key).append(",");
+            }
+        });
+
+        duration.deleteCharAt(duration.length() - 1);
+
+        lecture.setWeekdays(duration.toString());
+
+        String hrsFrom = nobesTimetableLecture.getHrsFrom();
+        String hrsTo = nobesTimetableLecture.getHrsTo();
+
+        String hrs = hrsFrom + " - " + hrsTo;
+        lecture.setTimeDuration(hrs);
+
+        return lecture;
     }
 
 }

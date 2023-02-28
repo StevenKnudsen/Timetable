@@ -60,11 +60,11 @@ public class NobesTimetableAu implements Serializable {
     @TableField("Other")
     private String Other;
 
-    @TableField("ES(sp)")
-    private String ES(sp);
+    @TableField("ESsp")
+    private String ESsp;
 
-    @TableField("ED(sp)")
-    private String ED(sp);
+    @TableField("EDsp")
+    private String EDsp;
 
     @TableField("PEng")
     private String PEng;

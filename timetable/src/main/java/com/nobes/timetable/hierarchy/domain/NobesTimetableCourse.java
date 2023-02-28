@@ -49,7 +49,7 @@ public class NobesTimetableCourse implements Serializable {
     private String ApprovedHrs;
 
     @TableField("descp")
-    private String descp;
+    private String description;
 
     @TableField("AccreditUnits")
     private String AccreditUnits;
