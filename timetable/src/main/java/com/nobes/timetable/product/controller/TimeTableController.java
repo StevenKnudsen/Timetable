@@ -3,9 +3,8 @@ package com.nobes.timetable.product.controller;
 
 import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.product.dto.LectureDTO;
-import com.nobes.timetable.product.dto.ProgDTO;
+import com.nobes.timetable.hierarchy.dto.ProgDTO;
 import com.nobes.timetable.product.logic.LectureService;
-import com.nobes.timetable.product.logic.SequenceService;
 import com.nobes.timetable.product.test.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -19,8 +18,6 @@ import java.util.HashMap;
 @RequestMapping("/nobes/timetable/product")
 public class TimeTableController {
 
-    @Autowired
-    SequenceService sequenceService;
 
     @Resource
     LectureService lectureService;
@@ -32,8 +29,8 @@ public class TimeTableController {
     @PostMapping("/getCourseInfo")
     public ResultBody getCourseInfo(@RequestBody @Validated ProgDTO progDTO) throws Exception {
 
-        ArrayList<String> courseList= sequenceService.calendarScrap(progDTO);
-        return ResultBody.success(courseList);
+//        ArrayList<String> courseList= sequenceService.calendarScrap(progDTO);
+        return ResultBody.success(null);
 
     }
 

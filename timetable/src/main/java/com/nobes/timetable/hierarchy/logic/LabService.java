@@ -23,7 +23,7 @@ public class LabService {
 
         String subject = lecture.getSubject();
         String catalog = lecture.getCatalog();
-        String semSect = lecture.getSemSect();
+        String semSect = lecture.getLabSect();
         String[] split = semSect.split(",");
 
         for (int i = 0; i < split.length; i++) {

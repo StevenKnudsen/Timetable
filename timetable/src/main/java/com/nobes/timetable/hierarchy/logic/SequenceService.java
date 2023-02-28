@@ -1,9 +1,9 @@
-package com.nobes.timetable.product.logic;
+package com.nobes.timetable.hierarchy.logic;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.nobes.timetable.product.domain.ProgramId;
-import com.nobes.timetable.product.dto.ProgDTO;
-import com.nobes.timetable.product.service.IProgramIdService;
+import com.nobes.timetable.hierarchy.domain.NobesTimetableProgram;
+import com.nobes.timetable.hierarchy.service.INobesTimetableProgramService;
+import com.nobes.timetable.hierarchy.dto.ProgDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,28 +19,27 @@ import java.util.Map;
 @Slf4j
 public class SequenceService {
     @Resource
-    IProgramIdService iProgramIdService;
+    INobesTimetableProgramService iNobesTimetableProgramService;
 
     @Autowired
-    CoursesService coursesService;
+    ScrapService scrapService;
 
     public ArrayList<String> calendarScrap(ProgDTO progDTO) throws Exception {
 
         String program_Name = progDTO.getProgramName();
         String term_Name = progDTO.getTermName();
 
-        ProgramId programId = iProgramIdService.getOne(new LambdaQueryWrapper<ProgramId>()
-                .eq(ProgramId::getProgramName, program_Name));
+        NobesTimetableProgram nobesTimetableProgram = iNobesTimetableProgramService.getOne(new LambdaQueryWrapper<NobesTimetableProgram>()
+                .eq(NobesTimetableProgram::getProgramName, program_Name));
 
-        Integer catoid = programId.getCatoid();
-        Integer poid = programId.getPoid();
+        Integer catoid = nobesTimetableProgram.getCatoid();
+        Integer poid = nobesTimetableProgram.getPoid();
         String url = "https://calendar.ualberta.ca/preview_program.php?catoid=" + catoid.toString() + "&poid=" + poid.toString();
         Document document = Jsoup.connect(url).get();
 
-        Map<String, ArrayList> sequenceMap = coursesService.getCourses(document);
+        Map<String, ArrayList> sequenceMap = scrapService.getCourses(document);
 
         return sequenceMap.get(term_Name);
     }
-
 
 }

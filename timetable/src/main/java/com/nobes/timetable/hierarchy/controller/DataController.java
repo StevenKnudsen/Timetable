@@ -1,12 +1,10 @@
 package com.nobes.timetable.hierarchy.controller;
 
-
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.core.entity.ResultBody;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.dto.ProgDTO;
 import com.nobes.timetable.hierarchy.logic.CourseService;
-import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
+import com.nobes.timetable.hierarchy.logic.SequenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,10 +21,19 @@ public class DataController {
     @Autowired
     CourseService courseService;
 
-    @PostMapping("/getCourse")
-    public ResultBody getCourse(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
+    @Autowired
+    SequenceService sequenceService;
+
+    @PostMapping("/getCourseInfo")
+    public ResultBody getCourseInfo(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
 
         return ResultBody.success(courseService.getCourse(courseDTO));
 
+    }
+
+    @PostMapping("/getCourse")
+    public ResultBody getCourse(@RequestBody @Validated ProgDTO progDTO) throws Exception {
+
+        return ResultBody.success(sequenceService.calendarScrap(progDTO));
     }
 }

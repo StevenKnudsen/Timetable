@@ -1,9 +1,10 @@
 package com.nobes.timetable.hierarchy.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
 
 @Data
 @AllArgsConstructor
@@ -22,7 +23,13 @@ public class Course {
 
     private String ApprovedHrs;
 
-    private String descp;
+    private String description;
 
     private String AccreditUnits;
+
+    private String prerequisite;
+
+    private String corequisite;
+
+    private HashMap<String, Double> AU_Count;
 }

@@ -1,4 +1,4 @@
-package com.nobes.timetable.product.dto;
+package com.nobes.timetable.hierarchy.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,5 +1,6 @@
-package com.nobes.timetable.product.logic;
+package com.nobes.timetable.hierarchy.logic;
 
+import com.nobes.timetable.product.logic.LectureService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class CoursesService {
+public class ScrapService {
 
     @Autowired
     LectureService lectureService;
