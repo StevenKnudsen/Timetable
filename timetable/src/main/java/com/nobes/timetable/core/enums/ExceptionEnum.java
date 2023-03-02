@@ -6,11 +6,11 @@ public enum ExceptionEnum implements BaseErrorInfoInterface {
     SUCCESS(200, "success"),
     NOT_FOUND(404, "not found");
 
-    private Integer respCode;
+    private final Integer respCode;
     /**
      * mistake description
      */
-    private String respDesc;
+    private final String respDesc;
 
     ExceptionEnum(Integer respCode, String respDesc) {
         this.respCode = respCode;

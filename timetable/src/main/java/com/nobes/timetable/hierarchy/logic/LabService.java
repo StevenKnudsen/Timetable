@@ -10,7 +10,6 @@ import com.nobes.timetable.hierarchy.vo.LabAndSem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 

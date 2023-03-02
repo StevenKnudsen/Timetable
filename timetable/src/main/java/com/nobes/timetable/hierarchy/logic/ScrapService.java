@@ -1,11 +1,9 @@
 package com.nobes.timetable.hierarchy.logic;
 
-import com.nobes.timetable.product.logic.LectureService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public class ScrapService {
 
                 for (int x = 0; x < courseList.size(); x++) {
 
-                    if (courseList.get(x).substring(courseList.get(x).length() - 2).equals("OR")) {
+                    if (courseList.get(x).endsWith("OR")) {
                         temp += courseList.get(x);
                         temp += " ";
                         deleteList.add(x);

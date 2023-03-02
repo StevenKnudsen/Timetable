@@ -18,9 +18,7 @@ import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 public class CodeGenerator {
     public static String scanner(String tip) {
         Scanner scanner = new Scanner(System.in);
-        StringBuilder help = new StringBuilder();
-        help.append("Please input" + tip + "：");
-        System.out.println(help.toString());
+        System.out.println("Please input" + tip + "：");
         if (scanner.hasNext()) {
             String ipt = scanner.next();
             if (StringUtils.isNotEmpty(ipt)) {

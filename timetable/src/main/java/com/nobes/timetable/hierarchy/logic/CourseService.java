@@ -2,7 +2,6 @@ package com.nobes.timetable.hierarchy.logic;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.hierarchy.domain.*;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
