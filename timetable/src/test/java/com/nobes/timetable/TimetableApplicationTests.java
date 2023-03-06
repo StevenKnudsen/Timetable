@@ -8,8 +8,9 @@ class TimetableApplicationTests {
 
 	@Test
 	void contextLoads() {
-		String s = "Summer";
-		System.out.println(s += 1);
+
+
+
 	}
 
 }

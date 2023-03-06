@@ -46,6 +46,8 @@ public class CourseService {
     LabService labService;
 
     public HashMap getCourse(CourseDTO courseDTO) {
+
+        // TODO: change the approvedHrs in the actual table to lec, lab, and sem, so far just change the test table
         String courseName = courseDTO.getCourseName();
 
         Pattern pattern = Pattern.compile("\\d+");

@@ -1,25 +1,63 @@
 package com.nobes.timetable.core.save.service;
 
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.nobes.timetable.core.save.test.domain.Course;
+import com.nobes.timetable.core.save.test.domain.Lab;
+import com.nobes.timetable.core.save.test.domain.Lec;
+import com.nobes.timetable.core.save.test.domain.Sem;
+import com.nobes.timetable.core.save.test.service.ICourseService;
+import com.nobes.timetable.core.save.test.service.ILabService;
+import com.nobes.timetable.core.save.test.service.ILecService;
+import com.nobes.timetable.core.save.test.service.ISemService;
+import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableTable;
+import com.nobes.timetable.hierarchy.service.INobesTimetableTableService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
-import static com.nobes.timetable.core.save.service.TimeService.getTime;
 
 @Service
 @Slf4j
 public class ImportService {
 
-    public static void excelImport(File file) throws Exception {
+    @Autowired
+    TimeService timeService;
+
+    @Resource
+    INobesTimetableTableService TableService;
+
+    @Resource
+    ICourseService iCourseService;
+
+    @Resource
+    ILecService iLecService;
+
+    @Resource
+    ILabService iLabService;
+
+    @Resource
+    ISemService iSemService;
+
+
+    /*
+    * save the timetable Excel files to the database as original data table
+    * */
+    public void excelImport(File file) throws Exception {
 
         String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
@@ -47,7 +85,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(1) == null) {
                 nobesTimetableTable.setTerm("null");
             } else {
-                nobesTimetableTable.setTerm(String.valueOf((int)sheet.getRow(i).getCell(1).getNumericCellValue()));
+                nobesTimetableTable.setTerm(String.valueOf((int) sheet.getRow(i).getCell(1).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(2) == null) {
@@ -59,7 +97,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(3) == null) {
                 nobesTimetableTable.setClassNbr("null");
             } else {
-                nobesTimetableTable.setClassNbr(String.valueOf((int)sheet.getRow(i).getCell(3).getNumericCellValue()));
+                nobesTimetableTable.setClassNbr(String.valueOf((int) sheet.getRow(i).getCell(3).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(4) == null) {
@@ -71,7 +109,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(5) == null) {
                 nobesTimetableTable.setCatalog("null");
             } else if (sheet.getRow(i).getCell(5).getCellType() == CellType.NUMERIC) {
-                nobesTimetableTable.setCatalog(String.valueOf((int)sheet.getRow(i).getCell(5).getNumericCellValue()));
+                nobesTimetableTable.setCatalog(String.valueOf((int) sheet.getRow(i).getCell(5).getNumericCellValue()));
             } else {
                 nobesTimetableTable.setCatalog(sheet.getRow(i).getCell(5).getStringCellValue());
             }
@@ -85,7 +123,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(7) == null) {
                 nobesTimetableTable.setSect("null");
             } else if (sheet.getRow(i).getCell(7).getCellType() == CellType.NUMERIC) {
-                nobesTimetableTable.setSect(String.valueOf((int)sheet.getRow(i).getCell(7).getNumericCellValue()));
+                nobesTimetableTable.setSect(String.valueOf((int) sheet.getRow(i).getCell(7).getNumericCellValue()));
             } else {
                 nobesTimetableTable.setSect(sheet.getRow(i).getCell(7).getStringCellValue());
             }
@@ -111,7 +149,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(11) == null) {
                 nobesTimetableTable.setFacilID("null");
             } else {
-                nobesTimetableTable.setFacilID(String.valueOf((int)sheet.getRow(i).getCell(11).getNumericCellValue()));
+                nobesTimetableTable.setFacilID(String.valueOf((int) sheet.getRow(i).getCell(11).getNumericCellValue()));
 
             }
 
@@ -142,13 +180,13 @@ public class ImportService {
             if (sheet.getRow(i).getCell(16) == null) {
                 nobesTimetableTable.setHrsFrom("null");
             } else {
-                nobesTimetableTable.setHrsFrom(getTime(sheet.getRow(i).getCell(16)));
+                nobesTimetableTable.setHrsFrom(timeService.getTime(sheet.getRow(i).getCell(16)));
             }
 
             if (sheet.getRow(i).getCell(17) == null) {
                 nobesTimetableTable.setHrsTo("null");
             } else {
-                nobesTimetableTable.setHrsTo(getTime(sheet.getRow(i).getCell(17)));
+                nobesTimetableTable.setHrsTo(timeService.getTime(sheet.getRow(i).getCell(17)));
             }
 
             if (sheet.getRow(i).getCell(18) == null) {
@@ -202,7 +240,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(26) == null) {
                 nobesTimetableTable.setInstructor("null");
             } else {
-                nobesTimetableTable.setInstructor(String.valueOf((int)sheet.getRow(i).getCell(26).getNumericCellValue()));
+                nobesTimetableTable.setInstructor(String.valueOf((int) sheet.getRow(i).getCell(26).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(27) == null) {
@@ -220,13 +258,13 @@ public class ImportService {
             if (sheet.getRow(i).getCell(29) == null) {
                 nobesTimetableTable.setCapEnrl("null");
             } else {
-                nobesTimetableTable.setCapEnrl(String.valueOf((int)sheet.getRow(i).getCell(29).getNumericCellValue()));
+                nobesTimetableTable.setCapEnrl(String.valueOf((int) sheet.getRow(i).getCell(29).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(30) == null) {
                 nobesTimetableTable.setTotEnrl("null");
             } else {
-                nobesTimetableTable.setTotEnrl(String.valueOf((int)sheet.getRow(i).getCell(30).getNumericCellValue()));
+                nobesTimetableTable.setTotEnrl(String.valueOf((int) sheet.getRow(i).getCell(30).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(31) == null) {
@@ -244,13 +282,13 @@ public class ImportService {
             if (sheet.getRow(i).getCell(33) == null) {
                 nobesTimetableTable.setNotesNbr("null");
             } else {
-                nobesTimetableTable.setNotesNbr(String.valueOf((int)sheet.getRow(i).getCell(33).getNumericCellValue()));
+                nobesTimetableTable.setNotesNbr(String.valueOf((int) sheet.getRow(i).getCell(33).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(34) == null) {
                 nobesTimetableTable.setNoteNbr("null");
-            } else if (sheet.getRow(i).getCell(34).getCellType() == CellType.NUMERIC){
-                nobesTimetableTable.setNoteNbr(String.valueOf((int)sheet.getRow(i).getCell(34).getNumericCellValue()));
+            } else if (sheet.getRow(i).getCell(34).getCellType() == CellType.NUMERIC) {
+                nobesTimetableTable.setNoteNbr(String.valueOf((int) sheet.getRow(i).getCell(34).getNumericCellValue()));
             } else {
                 nobesTimetableTable.setNoteNbr(sheet.getRow(i).getCell(34).getStringCellValue());
             }
@@ -264,7 +302,7 @@ public class ImportService {
             if (sheet.getRow(i).getCell(36) == null) {
                 nobesTimetableTable.setRqGroup("null");
             } else {
-                nobesTimetableTable.setRqGroup(String.valueOf((int)sheet.getRow(i).getCell(36).getNumericCellValue()));
+                nobesTimetableTable.setRqGroup(String.valueOf((int) sheet.getRow(i).getCell(36).getNumericCellValue()));
             }
 
             if (sheet.getRow(i).getCell(37) == null) {
@@ -354,16 +392,196 @@ public class ImportService {
             preparedStatement.setString(43, nobesTimetableTable.getDescription());
             preparedStatement.setString(44, nobesTimetableTable.getMaxUnits());
 
-            // 执行SQL语句
+
             preparedStatement.executeUpdate();
 
             preparedStatement.close();
-
         }
 
         connection.close();
 
+        log.info("Table Import Complete");
+    }
 
-        log.info("Import Complete");
+    /*
+     * populate the course data from Excel files to the course table
+     * */
+    public void courseImport() {
+        HashSet<String> courseNames = new HashSet<>();
+
+        List<NobesTimetableTable> courses = TableService.list(null);
+
+        Integer courseId = 1;
+
+        for (NobesTimetableTable course : courses) {
+            String subject = course.getSubject();
+            String catalog = course.getCatalog();
+            String description = course.getDescription();
+            String maxUnits = course.getMaxUnits();
+            String courseName = subject + " " + catalog;
+
+
+
+            if (!courseNames.contains(courseName)) {
+                String approvedHrs = course.getApprovedHrs();
+
+                Course newcourse = OrikaUtils.convert(course, Course.class);
+
+                if (approvedHrs.contains("-")) {
+                    String[] hrs = approvedHrs.split("-");
+                    newcourse.setLec(hrs[0]);
+                    newcourse.setLab(hrs[1]);
+
+                    if (hrs.length > 2) {
+                        newcourse.setSem(hrs[2]);
+                    } else {
+                        newcourse.setSem("0");
+                    }
+
+                } else {
+                    newcourse.setLec(approvedHrs);
+                    newcourse.setLab(approvedHrs);
+                    newcourse.setSem(approvedHrs);
+                }
+
+                courseNames.add(courseName);
+                newcourse.setCourseId(courseId);
+                newcourse.setDescp(description);
+                newcourse.setPre(null);
+                newcourse.setCo(null);
+                newcourse.setAccreditUnits(maxUnits);
+                courseId += 1;
+                iCourseService.save(newcourse);
+            }
+
+        }
+
+        log.info("Course Update Complete");
+
+    }
+
+    /*
+     * populate the lecture data from Excel files to the lecture table
+     * */
+    public void lecImport() {
+
+        List<Course> courses = iCourseService.list(null);
+        HashMap<String, Integer> map = new HashMap<>();
+        Integer lectureId = 1;
+        String defaultsect = "ALL";
+
+        for (Course course : courses) {
+            String courseName = course.getSubject() + " " + course.getCatalog();
+            Integer courseId = course.getCourseId();
+
+            map.put(courseName, courseId);
+        }
+
+        List<NobesTimetableTable> lecs = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
+                .eq(NobesTimetableTable::getComponent, "LEC"));
+
+        for (NobesTimetableTable lec : lecs) {
+
+            String catalog = lec.getCatalog();
+            String subject = lec.getSubject();
+
+            String name = subject + " " + catalog;
+            Integer courseId = map.get(name);
+
+            Lec newlec = OrikaUtils.convert(lec, Lec.class);
+            newlec.setCourseId(courseId);
+            newlec.setLectureId(lectureId);
+            newlec.setInstructorName(lec.getName());
+            newlec.setInstructorEmail(lec.getEmail());
+            newlec.setThrus(lec.getThurs());
+            newlec.setLabSect(defaultsect);
+            newlec.setSemSect(defaultsect);
+
+            lectureId += 1;
+
+            iLecService.save(newlec);
+        }
+
+        log.info("Lecture Import Complete");
+    }
+
+    /*
+    * populate the lab data from Excel files to the lab table
+    * */
+    public void labImport() {
+        List<Course> courses = iCourseService.list(null);
+        HashMap<String, Integer> map = new HashMap<>();
+
+        Integer labId = 1;
+
+        for (Course course : courses) {
+            String courseName = course.getSubject() + " " + course.getCatalog();
+            Integer courseId = course.getCourseId();
+
+            map.put(courseName, courseId);
+        }
+
+        List<NobesTimetableTable> labs = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
+                .eq(NobesTimetableTable::getComponent, "LAB"));
+
+        for (NobesTimetableTable lab : labs) {
+            String catalog = lab.getCatalog();
+            String subject = lab.getSubject();
+
+            String name = subject + " " + catalog;
+            Integer courseId = map.get(name);
+
+            Lab newlab = OrikaUtils.convert(lab, Lab.class);
+            newlab.setCourseId(courseId);
+            newlab.setLabId(labId);
+            newlab.setThrus(lab.getThurs());
+            labId += 1;
+            newlab.setInstructorName(lab.getName());
+            newlab.setInstructorEmail(lab.getEmail());
+
+            iLabService.save(newlab);
+        }
+
+        log.info("Lab Update Complete");
+
+    }
+
+    public void semImport() {
+
+        List<Course> courses = iCourseService.list(null);
+        HashMap<String, Integer> map = new HashMap<>();
+
+        Integer SemId = 1;
+
+        for (Course course : courses) {
+            String courseName = course.getSubject() + " " + course.getCatalog();
+            Integer courseId = course.getCourseId();
+
+            map.put(courseName, courseId);
+        }
+
+        List<NobesTimetableTable> sems = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
+                .eq(NobesTimetableTable::getComponent, "SEM"));
+
+        for (NobesTimetableTable sem : sems) {
+            String catalog = sem.getCatalog();
+            String subject = sem.getSubject();
+
+            String name = subject + " " + catalog;
+            Integer courseId = map.get(name);
+
+            Sem newsem = OrikaUtils.convert(sem, Sem.class);
+            newsem.setCourseId(courseId);
+            newsem.setSemId(SemId);
+            newsem.setThrus(sem.getThurs());
+            SemId += 1;
+            newsem.setInstructorName(sem.getName());
+            newsem.setInstructorEmail(sem.getEmail());
+
+            iSemService.save(newsem);
+        }
+
+        log.info("Sem Update Complete");
+
     }
 }
