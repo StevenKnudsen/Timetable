@@ -48,14 +48,7 @@ public class Course implements Serializable {
 
     @TableField("Sem")
     private String Sem;
-
-
-    @TableField("Prerequisite")
-    private String pre;
-
-    @TableField("Corequisite")
-    private String co;
-
+    
     @TableField("AccreditUnits")
     private String AccreditUnits;
 
