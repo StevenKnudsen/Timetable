@@ -19,6 +19,8 @@ public class TimeService {
             Date date = cell.getDateCellValue();
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
             format = dateFormat.format(date);
+        } else if (cell.getCellType() == CellType.STRING){
+            format = cell.getStringCellValue();
         } else {
             format = null;
         }

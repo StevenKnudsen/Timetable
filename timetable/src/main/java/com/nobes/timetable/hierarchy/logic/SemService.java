@@ -1,14 +1,17 @@
 package com.nobes.timetable.hierarchy.logic;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableLab;
+import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
+import com.nobes.timetable.hierarchy.domain.NobesTimetableSem;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableLabService;
+import com.nobes.timetable.hierarchy.service.INobesTimetableSemService;
 import com.nobes.timetable.hierarchy.vo.LabVO;
+import com.nobes.timetable.hierarchy.vo.SemVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -21,23 +24,23 @@ import java.util.regex.Pattern;
 
 @Component
 @Slf4j
-public class LabService {
+public class SemService {
 
     @Resource
-    INobesTimetableCourseService TimetableService;
+    INobesTimetableCourseService SemTableService;
 
     @Resource
-    INobesTimetableLabService labSelectService;
+    INobesTimetableSemService iNobesTimetableSemService;
 
     @Resource
     MainService mainService;
 
 
-    public ArrayList<LabVO> getLab(CourseDTO courseDTO) {
-
-        ArrayList<LabVO> labs = new ArrayList<>();
+    public ArrayList<SemVO> getSem(CourseDTO courseDTO) {
 
         String courseName = courseDTO.getCourseName();
+
+        ArrayList<SemVO> sems = new ArrayList<>();
 
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(courseName);
@@ -45,7 +48,7 @@ public class LabService {
         String catalog = matcher.group(0).trim();
         String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
-        NobesTimetableCourse course = TimetableService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+        NobesTimetableCourse course = SemTableService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
                 .eq(NobesTimetableCourse::getCatalog, catalog)
                 .eq(NobesTimetableCourse::getSubject, subject)
         );
@@ -56,15 +59,15 @@ public class LabService {
 
         Integer courseId = course.getCourseId();
 
-        List<NobesTimetableLab> sectionlist = labSelectService.list(new LambdaQueryWrapper<NobesTimetableLab>()
-                .eq(NobesTimetableLab::getCourseId, courseId));
+        List<NobesTimetableSem> sectionlist = iNobesTimetableSemService.list(new LambdaQueryWrapper<NobesTimetableSem>()
+                .eq(NobesTimetableSem::getCourseId, courseId));
 
-        for (NobesTimetableLab lab : sectionlist) {
-
-            LabVO labObj = mainService.getLabObj(lab);
-            labs.add(labObj);
+        for (NobesTimetableSem sem : sectionlist) {
+            SemVO semVO = mainService.getSemObj(sem);
+            sems.add(semVO);
         }
 
-        return labs;
+        return sems;
     }
 }
+

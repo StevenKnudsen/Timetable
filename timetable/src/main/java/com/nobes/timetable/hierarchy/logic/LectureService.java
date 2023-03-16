@@ -1,51 +1,45 @@
 package com.nobes.timetable.hierarchy.logic;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableLab;
+import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
-import com.nobes.timetable.hierarchy.service.INobesTimetableLabService;
-import com.nobes.timetable.hierarchy.vo.LabVO;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import com.nobes.timetable.hierarchy.service.INobesTimetableLectureService;
+import com.nobes.timetable.hierarchy.vo.LectureVO;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
-@Slf4j
-public class LabService {
+@Service
+public class LectureService {
 
     @Resource
-    INobesTimetableCourseService TimetableService;
+    INobesTimetableCourseService NBCourseService;
 
     @Resource
-    INobesTimetableLabService labSelectService;
+    INobesTimetableLectureService NBLectureService;
 
     @Resource
     MainService mainService;
 
+    public ArrayList<LectureVO> getLecture(CourseDTO courseDTO) throws Exception {
 
-    public ArrayList<LabVO> getLab(CourseDTO courseDTO) {
-
-        ArrayList<LabVO> labs = new ArrayList<>();
+        ArrayList<LectureVO> lectureVOS = new ArrayList<>();
 
         String courseName = courseDTO.getCourseName();
 
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(courseName);
         matcher.find();
-        String catalog = matcher.group(0).trim();
+        String catalog = matcher.group(0);
         String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
-        NobesTimetableCourse course = TimetableService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+        NobesTimetableCourse course = NBCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
                 .eq(NobesTimetableCourse::getCatalog, catalog)
                 .eq(NobesTimetableCourse::getSubject, subject)
         );
@@ -56,15 +50,14 @@ public class LabService {
 
         Integer courseId = course.getCourseId();
 
-        List<NobesTimetableLab> sectionlist = labSelectService.list(new LambdaQueryWrapper<NobesTimetableLab>()
-                .eq(NobesTimetableLab::getCourseId, courseId));
+        List<NobesTimetableLecture> sectionlist = NBLectureService.list(new LambdaQueryWrapper<NobesTimetableLecture>()
+                .eq(NobesTimetableLecture::getCourseId, courseId));
 
-        for (NobesTimetableLab lab : sectionlist) {
-
-            LabVO labObj = mainService.getLabObj(lab);
-            labs.add(labObj);
+        for (NobesTimetableLecture lecture : sectionlist) {
+            LectureVO lectureVOObj = mainService.getLectureObj(lecture);
+            lectureVOS.add(lectureVOObj);
         }
+        return lectureVOS;
 
-        return labs;
     }
 }

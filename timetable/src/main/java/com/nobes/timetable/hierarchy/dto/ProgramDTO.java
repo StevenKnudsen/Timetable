@@ -7,12 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProgDTO {
+public class ProgramDTO {
 
     private String programName;
-
-    private String termName;
-
-    private String planName;
 
 }

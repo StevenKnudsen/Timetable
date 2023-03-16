@@ -1,7 +1,7 @@
 package com.nobes.timetable.save;
 
 
-import com.nobes.timetable.core.save.service.ReqService;
+import com.nobes.timetable.hierarchy.logic.reqhelp.ReqService;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;

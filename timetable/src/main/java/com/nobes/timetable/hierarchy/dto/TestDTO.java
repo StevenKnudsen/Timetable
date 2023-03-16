@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProgDTO {
+public class TestDTO {
 
-    private String programName;
+    private String subject;
 
-    private String termName;
-
-    private String planName;
+    private String catalog;
 
 }
