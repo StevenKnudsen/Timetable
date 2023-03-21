@@ -12,7 +12,7 @@ import java.util.HashMap;
 @NoArgsConstructor
 public class CourseVO {
 
-    private String CoureName;
+    private String CourseName;
 
     private String AcadOrg;
 

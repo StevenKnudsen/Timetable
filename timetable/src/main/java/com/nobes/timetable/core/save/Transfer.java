@@ -31,7 +31,7 @@ public class Transfer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        importService.excelImport(new File("src/main/java/com/nobes/timetable/table2.xls"));
+        importService.excelImport(new File("src/main/java/com/nobes/timetable/table1.xls"));
 
         importService.courseImport();
 

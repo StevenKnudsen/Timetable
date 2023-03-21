@@ -1,10 +1,13 @@
-package com.nobes.timetable.hierarchy.logic;
+package com.nobes.timetable.hierarchy.logic.lecture;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
+import com.nobes.timetable.hierarchy.dto.CourseDTO;
 import com.nobes.timetable.hierarchy.dto.ProgDTO;
+import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.vo.CourseVO;
+import com.nobes.timetable.hierarchy.vo.LectureVO;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -13,12 +16,12 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Component
-public class CourseService {
+public class LecturesService {
 
     @Resource
     INobesTimetableCourseService courseSelectService;
@@ -26,7 +29,10 @@ public class CourseService {
     @Resource
     MainService cService;
 
-    public ArrayList getCourses(ProgDTO progDTO) throws Exception {
+    @Resource
+    LectureService lService;
+
+    public HashMap getLecs(ProgDTO progDTO) throws Exception {
 
         String program_Name = progDTO.getProgramName();
         String term_Name = progDTO.getTermName();
@@ -92,6 +98,8 @@ public class CourseService {
             }
         }
 
+        HashMap<String, ArrayList<LectureVO>> lecMap = new HashMap<>();
+
         for (int i = 0; i < names.size(); i++) {
 
             String courseName = names.get(i);
@@ -101,21 +109,25 @@ public class CourseService {
                 courseVO.setSubject("COMP");
                 courseVO.setCourseName("COMP");
                 cours.add(courseVO);
+                lecMap.put(courseName,null);
             } else if (courseName.equals("ITS")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
                 cours.add(courseVO);
+                lecMap.put(courseName,null);
             } else if (courseName.equals("PROG 1")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 1");
                 courseVO.setCourseName("PROG 1");
                 cours.add(courseVO);
+                lecMap.put(courseName,null);
             } else if (courseName.equals("PROG 2")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 2");
                 courseVO.setCourseName("PROG 2");
                 cours.add(courseVO);
+                lecMap.put(courseName,null);
             } else {
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
@@ -124,15 +136,29 @@ public class CourseService {
                 String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
                 NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>().eq(NobesTimetableCourse::getCatalog, catalog).eq(NobesTimetableCourse::getSubject, subject), false);
+
                 // find course information
+                CourseVO courseVO;
+
                 if (course != null) {
-                    CourseVO courseVOObj = cService.getCourseObj(course);
-                    cours.add(courseVOObj);
+                    courseVO = cService.getCourseObj(course);
+                    cours.add(courseVO);
                 }
+
+                String coursename = subject + " " + catalog;
+                CourseDTO courseDTO = new CourseDTO();
+                courseDTO.setCourseName(coursename);
+
+                ArrayList<LectureVO> lectures = lService.getLecture(courseDTO);
+
+
+                lecMap.put(coursename, lectures);
+
             }
         }
 
-        return cours;
+        return lecMap;
     }
 
 }
+

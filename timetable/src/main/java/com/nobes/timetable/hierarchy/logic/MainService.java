@@ -6,13 +6,12 @@ import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.hierarchy.domain.*;
 import com.nobes.timetable.hierarchy.logic.reqhelp.ParseHelpService;
 import com.nobes.timetable.hierarchy.logic.reqhelp.ReqService;
-import com.nobes.timetable.hierarchy.service.*;
+import com.nobes.timetable.hierarchy.service.INobesTimetableAuService;
 import com.nobes.timetable.hierarchy.vo.CourseVO;
 import com.nobes.timetable.hierarchy.vo.LabVO;
 import com.nobes.timetable.hierarchy.vo.LectureVO;
 import com.nobes.timetable.hierarchy.vo.SemVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -33,7 +32,7 @@ public class MainService {
         CourseVO courseVO = OrikaUtils.convert(nobesTimetableCourse, CourseVO.class);
 
         String courseName = courseVO.getSubject() + " " + courseVO.getCatalog();
-        courseVO.setCoureName(courseName);
+        courseVO.setCourseName(courseName);
         NobesTimetableAu courseAU = iNobesTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
                 .eq(NobesTimetableAu::getCourseName, courseName));
 
@@ -62,7 +61,7 @@ public class MainService {
     public LectureVO getLectureObj(NobesTimetableLecture nobesTimetableLecture) {
         LectureVO lectureVO = OrikaUtils.convert(nobesTimetableLecture, LectureVO.class);
 
-        String lectureName = nobesTimetableLecture.getSubject() + " "
+        String lectureName = nobesTimetableLecture.getSubject()
                 + nobesTimetableLecture.getCatalog() + " "
                 + nobesTimetableLecture.getComponent() + " "
                 + nobesTimetableLecture.getSect();
@@ -110,7 +109,7 @@ public class MainService {
 
     public LabVO getLabObj(NobesTimetableLab nobesTimetableLab) {
 
-        String labName = nobesTimetableLab.getSubject() + " "
+        String labName = nobesTimetableLab.getSubject()
                 + nobesTimetableLab.getCatalog() + " "
                 + nobesTimetableLab.getComponent() + " "
                 + nobesTimetableLab.getSect();
@@ -161,7 +160,7 @@ public class MainService {
 
 
     public SemVO getSemObj(NobesTimetableSem nobesTimetableSem) {
-        String labName = nobesTimetableSem.getSubject() + " "
+        String labName = nobesTimetableSem.getSubject()
                 + nobesTimetableSem.getCatalog() + " "
                 + nobesTimetableSem.getComponent() + " "
                 + nobesTimetableSem.getSect();

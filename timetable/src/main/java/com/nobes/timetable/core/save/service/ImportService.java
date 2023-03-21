@@ -518,13 +518,12 @@ public class ImportService {
         connection.close();
 
         List<NobesTimetableCourse> courses = iCourseService.list(null);
-        HashSet<String> set = new HashSet<>();
+        HashSet<NobesTimetableCourse> set = new HashSet<>();
         Integer lectureId = 1;
         String defaultsect = "ALL";
 
         for (NobesTimetableCourse course : courses) {
-            String courseName = course.getSubject() + " " + course.getCatalog();
-            set.add(courseName);
+            set.add(course);
         }
 
         List<NobesTimetableTable> lecs = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()

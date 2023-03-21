@@ -11,8 +11,6 @@ import java.util.ArrayList;
 @NoArgsConstructor
 public class LectureVO {
 
-    private String ClassNbr;
-
     private String LecName;
 
     private String section;
@@ -20,10 +18,6 @@ public class LectureVO {
     private String color;
 
     private String Place;
-
-    private String StartDate;
-
-    private String EndDate;
 
     private ArrayList times;
 

@@ -22,13 +22,7 @@ public class SemVO {
 
     private String color;
 
-    private String ClassNbr;
-
     private String Place;
-
-    private String StartDate;
-
-    private String EndDate;
 
     private ArrayList times;
 

@@ -5,6 +5,12 @@ import com.nobes.timetable.hierarchy.dto.CourseDTO;
 import com.nobes.timetable.hierarchy.dto.ProgDTO;
 import com.nobes.timetable.hierarchy.dto.ProgramDTO;
 import com.nobes.timetable.hierarchy.logic.*;
+import com.nobes.timetable.hierarchy.logic.lab.LabService;
+import com.nobes.timetable.hierarchy.logic.lab.LabsService;
+import com.nobes.timetable.hierarchy.logic.lecture.LectureService;
+import com.nobes.timetable.hierarchy.logic.lecture.LecturesService;
+import com.nobes.timetable.hierarchy.logic.seminar.SemService;
+import com.nobes.timetable.hierarchy.logic.seminar.SeminarsService;
 import com.nobes.timetable.hierarchy.vo.LabVO;
 import com.nobes.timetable.hierarchy.vo.LectureVO;
 import com.nobes.timetable.hierarchy.vo.SemVO;
@@ -41,10 +47,20 @@ public class DataController {
     @Resource
     PlanService planService;
 
+    @Resource
+    LecturesService lecturesService;
+
+    @Resource
+    LabsService labsService;
+
+    @Resource
+    SeminarsService seminarsService;
+
 
     @PostMapping("/getPlans")
     public ResultBody getPlans(@RequestBody @Validated ProgramDTO programDTO) throws Exception {
         HashMap<String, ArrayList> plan = planService.getPlan(programDTO);
+
         return ResultBody.success(plan);
     }
 
@@ -57,28 +73,55 @@ public class DataController {
     }
 
 
-    @PostMapping("/getpaletteCourses")
-    public ResultBody getpaletteCourses(@RequestBody @Validated ProgDTO progDTO) throws Exception {
+    /*
+    * new controller
+    * */
+    @PostMapping("/getLecsInfo")
+    public ResultBody getLecsInfo(@RequestBody @Validated ProgDTO progDTO) throws Exception {
+        return ResultBody.success(lecturesService.getLecs(progDTO));
+    }
+
+    /*
+     * new controller
+     * */
+    @PostMapping("/getLabsInfo")
+    public ResultBody getLabsInfo(@RequestBody @Validated ProgDTO progDTO) throws Exception {
+        return ResultBody.success(labsService.getLabs(progDTO));
+    }
+
+
+    /*
+     * new controller
+     * */
+    @PostMapping("/getSemsInfo")
+    public ResultBody getSemsInfo(@RequestBody @Validated ProgDTO progDTO) throws Exception {
+        return ResultBody.success(seminarsService.getSems(progDTO));
+    }
+
+
+
+    @PostMapping("/getPaletteCourses")
+    public ResultBody getPaletteCourses(@RequestBody @Validated ProgDTO progDTO) throws Exception {
         return ResultBody.success(courseService.getCourses(progDTO));
     }
 
 
-    @PostMapping("/getpaletteLecs")
-    public ResultBody getpaletteLecs(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
+    @PostMapping("/getPaletteLecs")
+    public ResultBody getPaletteLecs(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
         ArrayList<LectureVO> lectureVOS = lectureService.getLecture(courseDTO);
         return ResultBody.success(lectureVOS);
     }
 
 
-    @PostMapping("/getpaletteLabs")
-    public ResultBody getpaletteLabs(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
+    @PostMapping("/getPaletteLabs")
+    public ResultBody getPaletteLabs(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
         ArrayList<LabVO> lab = labService.getLab(courseDTO);
         return ResultBody.success(lab);
     }
 
 
-    @PostMapping("/getpaletteSems")
-    public ResultBody getpaletteSems(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
+    @PostMapping("/getPaletteSems")
+    public ResultBody getPaletteSems(@RequestBody @Validated CourseDTO courseDTO) throws Exception {
         ArrayList<SemVO> sem = semService.getSem(courseDTO);
         return ResultBody.success(sem);
     }

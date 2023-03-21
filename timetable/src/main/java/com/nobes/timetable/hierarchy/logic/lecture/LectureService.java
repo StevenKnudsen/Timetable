@@ -1,9 +1,10 @@
-package com.nobes.timetable.hierarchy.logic;
+package com.nobes.timetable.hierarchy.logic.lecture;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
 import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableLectureService;
 import com.nobes.timetable.hierarchy.vo.LectureVO;
@@ -53,10 +54,12 @@ public class LectureService {
         List<NobesTimetableLecture> sectionlist = NBLectureService.list(new LambdaQueryWrapper<NobesTimetableLecture>()
                 .eq(NobesTimetableLecture::getCourseId, courseId));
 
+
         for (NobesTimetableLecture lecture : sectionlist) {
             LectureVO lectureVOObj = mainService.getLectureObj(lecture);
             lectureVOS.add(lectureVOObj);
         }
+
         return lectureVOS;
 
     }
