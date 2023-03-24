@@ -1,6 +1,6 @@
-package com.nobes.timetable.hierarchy.dao;
+package com.nobes.timetable.product.dao;
 
-import com.nobes.timetable.hierarchy.domain.NobesTimetableSequence;
+import com.nobes.timetable.product.domain.NobesTimetableSequence;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

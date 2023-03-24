@@ -92,6 +92,10 @@ public class MainService {
         String hrsFrom = nobesTimetableLecture.getHrsFrom();
         String hrsTo = nobesTimetableLecture.getHrsTo();
 
+        if (hrsFrom.equals(hrsTo)) {
+            return null;
+        }
+
         String hrs = hrsFrom + "-" + hrsTo;
 
 
@@ -101,24 +105,20 @@ public class MainService {
 
         lectureVO.setTimes(lecs);
 
-        lectureVO.setColor(ParseHelpService.generateRandomColorCode());
-
         return lectureVO;
     }
 
 
     public LabVO getLabObj(NobesTimetableLab nobesTimetableLab) {
 
+        LabVO labVO = OrikaUtils.convert(nobesTimetableLab, LabVO.class);
+
         String labName = nobesTimetableLab.getSubject()
                 + nobesTimetableLab.getCatalog() + " "
                 + nobesTimetableLab.getComponent() + " "
                 + nobesTimetableLab.getSect();
 
-
-        String component = nobesTimetableLab.getComponent();
         String sect = nobesTimetableLab.getSect();
-
-        ArrayList<String> labtimes = new ArrayList<>();
 
         String mon = nobesTimetableLab.getMon();
         String tues = nobesTimetableLab.getTues();
@@ -126,31 +126,36 @@ public class MainService {
         String thurs = nobesTimetableLab.getThrus();
         String fri = nobesTimetableLab.getFri();
 
+        ArrayList<String> labs = new ArrayList<>();
         HashMap<String, String> weekdays = new HashMap<>();
-        weekdays.put("Monday", mon);
-        weekdays.put("Tuesday", tues);
-        weekdays.put("Wednesday", wed);
-        weekdays.put("Thursday", thurs);
-        weekdays.put("Friday", fri);
+        weekdays.put("MON", mon);
+        weekdays.put("TUE", tues);
+        weekdays.put("WED", wed);
+        weekdays.put("THU", thurs);
+        weekdays.put("FRI", fri);
 
         weekdays.forEach((key, value) -> {
             if (value.equals("Y")) {
-                labtimes.add(key);
+                labs.add(key);
             }
         });
 
         String hrsFrom = nobesTimetableLab.getHrsFrom();
         String hrsTo = nobesTimetableLab.getHrsTo();
 
+        if (hrsFrom.equals(hrsTo)) {
+            return null;
+        }
+
         String hrs = hrsFrom + "-" + hrsTo;
 
 
-        for (int i = 0; i < labtimes.size(); i++) {
-            labtimes.set(i, labtimes.get(i) + "_" + hrs);
+        for (int i = 0; i < labs.size(); i++) {
+            labs.set(i, labs.get(i) + "_" + hrs);
         }
 
-        LabVO labVO = OrikaUtils.convert(nobesTimetableLab, LabVO.class);
-        labVO.setTimes(labtimes);
+        labVO.setTimes(labs);
+
         labVO.setLabName(labName);
         labVO.setColor(ParseHelpService.generateRandomColorCode());
         labVO.setSection(sect);
@@ -160,6 +165,8 @@ public class MainService {
 
 
     public SemVO getSemObj(NobesTimetableSem nobesTimetableSem) {
+        SemVO semVO = OrikaUtils.convert(nobesTimetableSem, SemVO.class);
+
         String labName = nobesTimetableSem.getSubject()
                 + nobesTimetableSem.getCatalog() + " "
                 + nobesTimetableSem.getComponent() + " "
@@ -168,39 +175,41 @@ public class MainService {
 
         String sect = nobesTimetableSem.getSect();
 
-        ArrayList<String> SemTimes = new ArrayList<>();
-
         String mon = nobesTimetableSem.getMon();
         String tues = nobesTimetableSem.getTues();
         String wed = nobesTimetableSem.getWed();
         String thurs = nobesTimetableSem.getThrus();
         String fri = nobesTimetableSem.getFri();
 
+        ArrayList<String> sems = new ArrayList<>();
         HashMap<String, String> weekdays = new HashMap<>();
-        weekdays.put("Monday", mon);
-        weekdays.put("Tuesday", tues);
-        weekdays.put("Wednesday", wed);
-        weekdays.put("Thursday", thurs);
-        weekdays.put("Friday", fri);
+        weekdays.put("MON", mon);
+        weekdays.put("TUE", tues);
+        weekdays.put("WED", wed);
+        weekdays.put("THU", thurs);
+        weekdays.put("FRI", fri);
 
         weekdays.forEach((key, value) -> {
             if (value.equals("Y")) {
-                SemTimes.add(key);
+                sems.add(key);
             }
         });
 
         String hrsFrom = nobesTimetableSem.getHrsFrom();
         String hrsTo = nobesTimetableSem.getHrsTo();
 
+        if (hrsFrom.equals(hrsTo)) {
+            return null;
+        }
+
         String hrs = hrsFrom + "-" + hrsTo;
 
 
-        for (int i = 0; i < SemTimes.size(); i++) {
-            SemTimes.set(i, SemTimes.get(i) + "_" + hrs);
+        for (int i = 0; i < sems.size(); i++) {
+            sems.set(i, sems.get(i) + "_" + hrs);
         }
 
-        SemVO semVO = OrikaUtils.convert(nobesTimetableSem, SemVO.class);
-        semVO.setTimes(SemTimes);
+        semVO.setTimes(sems);
         semVO.setSemName(labName);
         semVO.setColor(ParseHelpService.generateRandomColorCode());
         semVO.setSection(sect);

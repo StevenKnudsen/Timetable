@@ -1,9 +1,8 @@
-package com.nobes.timetable.hierarchy.logic.lecture;
+package com.nobes.timetable.product.logic.lecture;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableLecture;
-import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.dto.CourseIdDTO;
 import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableLectureService;
@@ -12,12 +11,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
-public class LectureService {
+public class LeService {
 
     @Resource
     INobesTimetableCourseService NBCourseService;
@@ -28,28 +26,11 @@ public class LectureService {
     @Resource
     MainService mainService;
 
-    public ArrayList<LectureVO> getLecture(CourseDTO courseDTO) throws Exception {
+    public ArrayList<LectureVO> getLecture(CourseIdDTO courseDTO) throws Exception {
 
         ArrayList<LectureVO> lectureVOS = new ArrayList<>();
 
-        String courseName = courseDTO.getCourseName();
-
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(courseName);
-        matcher.find();
-        String catalog = matcher.group(0);
-        String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
-
-        NobesTimetableCourse course = NBCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
-                .eq(NobesTimetableCourse::getCatalog, catalog)
-                .eq(NobesTimetableCourse::getSubject, subject)
-        );
-
-        if (course.getLec().equals("0")) {
-            return new ArrayList<>();
-        }
-
-        Integer courseId = course.getCourseId();
+        Integer courseId = courseDTO.getCourseId();
 
         List<NobesTimetableLecture> sectionlist = NBLectureService.list(new LambdaQueryWrapper<NobesTimetableLecture>()
                 .eq(NobesTimetableLecture::getCourseId, courseId));
@@ -60,7 +41,11 @@ public class LectureService {
             lectureVOS.add(lectureVOObj);
         }
 
-        return lectureVOS;
+        HashSet<LectureVO> nonDuoLecs = new HashSet<>(lectureVOS);
+
+        ArrayList<LectureVO> lecs = new ArrayList<>(nonDuoLecs);
+
+        return lecs;
 
     }
 }

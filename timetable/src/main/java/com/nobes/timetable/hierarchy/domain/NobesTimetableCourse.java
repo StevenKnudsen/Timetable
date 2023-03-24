@@ -53,11 +53,15 @@ public class NobesTimetableCourse implements Serializable {
 
     @TableField("Sem")
     private String Sem;
+
     @TableField("descp")
     private String description;
 
     @TableField("AccreditUnits")
     private String AccreditUnits;
+
+    @TableField("appliedTerm")
+    private String appliedTerm;
 
 
 }

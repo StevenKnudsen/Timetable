@@ -1,13 +1,12 @@
-package com.nobes.timetable.hierarchy.logic.lecture;
+package com.nobes.timetable.product.logic.lab;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
-import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.dto.CourseIdDTO;
 import com.nobes.timetable.hierarchy.dto.ProgDTO;
-import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.vo.CourseVO;
-import com.nobes.timetable.hierarchy.vo.LectureVO;
+import com.nobes.timetable.hierarchy.vo.LabVO;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -21,18 +20,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class LecturesService {
+public class LsService {
 
     @Resource
     INobesTimetableCourseService courseSelectService;
 
     @Resource
-    MainService cService;
+    LService lService;
 
-    @Resource
-    LectureService lService;
-
-    public HashMap getLecs(ProgDTO progDTO) throws Exception {
+    public HashMap getLabs(ProgDTO progDTO) throws Exception {
 
         String program_Name = progDTO.getProgramName();
         String term_Name = progDTO.getTermName();
@@ -98,7 +94,7 @@ public class LecturesService {
             }
         }
 
-        HashMap<String, ArrayList<LectureVO>> lecMap = new HashMap<>();
+        HashMap<String, ArrayList<LabVO>> labMap = new HashMap<>();
 
         for (int i = 0; i < names.size(); i++) {
 
@@ -109,25 +105,52 @@ public class LecturesService {
                 courseVO.setSubject("COMP");
                 courseVO.setCourseName("COMP");
                 cours.add(courseVO);
-                lecMap.put(courseName,null);
+                labMap.put(courseName,null);
             } else if (courseName.equals("ITS")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
                 cours.add(courseVO);
-                lecMap.put(courseName,null);
+                labMap.put(courseName,null);
             } else if (courseName.equals("PROG 1")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 1");
                 courseVO.setCourseName("PROG 1");
                 cours.add(courseVO);
-                lecMap.put(courseName,null);
+                labMap.put(courseName,null);
             } else if (courseName.equals("PROG 2")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 2");
                 courseVO.setCourseName("PROG 2");
                 cours.add(courseVO);
-                lecMap.put(courseName,null);
+                labMap.put(courseName,null);
+            } else if (courseName.contains("or")) {
+                // TODO: if there is a or case, just take the first one, need to be fixed
+
+                String[] courses = courseName.split("\\s*[Oo][Rr]\\s*");
+
+                String[] strings = courses[1].trim().split("\\s(?=\\d)");
+                ;
+
+                String catalog = strings[1].trim();
+                String subject = strings[0].trim();
+
+                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+                        .eq(NobesTimetableCourse::getCatalog, catalog)
+                        .eq(NobesTimetableCourse::getSubject, subject), false);
+
+                Integer courseId = course.getCourseId();
+
+                if (!course.getLab().equals("0") && !course.getLab().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<LabVO> labs = lService.getLab(courseIdDTO);
+
+                    labMap.put(coursename, labs);
+                }
+
             } else {
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
@@ -135,30 +158,24 @@ public class LecturesService {
                 String catalog = matcher.group(0);
                 String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
-                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>().eq(NobesTimetableCourse::getCatalog, catalog).eq(NobesTimetableCourse::getSubject, subject), false);
+                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+                        .eq(NobesTimetableCourse::getCatalog, catalog)
+                        .eq(NobesTimetableCourse::getSubject, subject), false);
 
-                // find course information
-                CourseVO courseVO;
+                Integer courseId = course.getCourseId();
 
-                if (course != null) {
-                    courseVO = cService.getCourseObj(course);
-                    cours.add(courseVO);
+                if (!course.getLab().equals("0") && !course.getLab().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<LabVO> labs = lService.getLab(courseIdDTO);
+
+                    labMap.put(coursename, labs);
                 }
-
-                String coursename = subject + " " + catalog;
-                CourseDTO courseDTO = new CourseDTO();
-                courseDTO.setCourseName(coursename);
-
-                ArrayList<LectureVO> lectures = lService.getLecture(courseDTO);
-
-
-                lecMap.put(coursename, lectures);
-
             }
         }
 
-        return lecMap;
+        return labMap;
     }
-
 }
-

@@ -2,9 +2,7 @@ package com.nobes.timetable.core.save.service;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.toolkit.SqlRunner;
 import com.nobes.timetable.core.utils.OrikaUtils;
-import com.nobes.timetable.hierarchy.dao.NobesTimetableCourseMapper;
 import com.nobes.timetable.hierarchy.domain.*;
 import com.nobes.timetable.hierarchy.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,14 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.print.DocFlavor;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -426,23 +419,30 @@ public class ImportService {
     }
 
     /*
-     * populate the course data from Excel files to the course table
-     * */
-    public void courseImport() throws SQLException {
+    * truncate nobes_timetable_table
+    * */
+    public void truncate() throws Exception {
 
-        // TODO: change the database connection info once change the database
         String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
         String password = "jxp51515";
 
         Connection connection = DriverManager.getConnection(url, username, password);
-        String sql = "TRUNCATE TABLE nobes_timetable_course";
+        String sql = "TRUNCATE TABLE nobes_timetable_table";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.executeUpdate();
 
         preparedStatement.close();
         connection.close();
 
+    }
+
+    /*
+     * populate the course data from Excel files to the course table
+     * */
+    public void courseImport() throws SQLException {
+
+        // TODO: change the database connection info once change the database
         HashSet<String> courseNames = new HashSet<>();
 
         Integer courseId = 1;
@@ -452,9 +452,11 @@ public class ImportService {
         for (NobesTimetableTable course : courses) {
             String subject = course.getSubject();
             String catalog = course.getCatalog();
+            String term = course.getShortDesc().replaceAll("\\d", "").trim();
             String description = course.getDescription();
             String maxUnits = course.getMaxUnits();
-            String courseName = subject + " " + catalog;
+            String courseTitle = subject + " " + catalog;
+            String courseName = courseTitle + term;
 
 
             if (!courseNames.contains(courseName)) {
@@ -467,12 +469,12 @@ public class ImportService {
                 if (approvedHrs.contains("-")) {
                     String[] hrs = approvedHrs.split("-");
                     newcourse.setLec(hrs[0]);
-                    newcourse.setLab(hrs[1]);
+                    newcourse.setSem(hrs[1]);
 
                     if (hrs.length > 2) {
-                        newcourse.setSem(hrs[2]);
+                        newcourse.setLab(hrs[2]);
                     } else {
-                        newcourse.setSem("0");
+                        newcourse.setLab("0");
                     }
 
                 } else {
@@ -482,6 +484,7 @@ public class ImportService {
                 }
 
                 courseNames.add(courseName);
+                newcourse.setAppliedTerm(term);
                 newcourse.setDescription(description);
                 newcourse.setAccreditUnits(maxUnits);
                 newcourse.setCourseId(courseId);
@@ -505,17 +508,6 @@ public class ImportService {
         * truncate the previous table to avoid duplicate data
         * */
         // TODO: change the database connection info once change the database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "jxp51515";
-
-        Connection connection = DriverManager.getConnection(url, username, password);
-        String sql = "TRUNCATE TABLE nobes_timetable_lecture";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
 
         List<NobesTimetableCourse> courses = iCourseService.list(null);
         HashSet<NobesTimetableCourse> set = new HashSet<>();
@@ -533,10 +525,13 @@ public class ImportService {
 
             String catalog = lec.getCatalog();
             String subject = lec.getSubject();
+            String term = lec.getShortDesc().replaceAll("\\d", "").trim();
 
             NobesTimetableCourse course = iCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
                     .eq(NobesTimetableCourse::getSubject, subject)
-                    .eq(NobesTimetableCourse::getCatalog, catalog.trim()));
+                    .eq(NobesTimetableCourse::getCatalog, catalog.trim())
+                    .eq(NobesTimetableCourse::getAppliedTerm, term.trim()));
+
             Integer courseId = course.getCourseId();
             NobesTimetableLecture newlec = OrikaUtils.convert(lec, NobesTimetableLecture.class);
             newlec.setLectureId(lectureId);
@@ -561,39 +556,30 @@ public class ImportService {
     public void labImport() throws SQLException {
 
         // TODO: change the database connection info once change the database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "jxp51515";
-
-        Connection connection = DriverManager.getConnection(url, username, password);
-        String sql = "TRUNCATE TABLE nobes_timetable_lab";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
-
-
-        List<NobesTimetableCourse> courses = iCourseService.list(null);
-        HashSet<String> set = new HashSet<>();
 
         Integer labId = 1;
 
-        for (NobesTimetableCourse course : courses) {
-            String courseName = course.getSubject() + " " + course.getCatalog();
-            set.add(courseName);
-        }
+        List<NobesTimetableTable> lbls = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
+                .eq(NobesTimetableTable::getComponent, "LBL"));
+
 
         List<NobesTimetableTable> labs = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
                 .eq(NobesTimetableTable::getComponent, "LAB"));
 
+        for (NobesTimetableTable lbl : lbls) {
+            lbl.setComponent("LAB");
+            labs.add(lbl);
+        }
+
         for (NobesTimetableTable lab : labs) {
             String catalog = lab.getCatalog();
             String subject = lab.getSubject();
+            String term = lab.getShortDesc().replaceAll("\\d", "").trim();
 
             NobesTimetableCourse course = iCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
                     .eq(NobesTimetableCourse::getSubject, subject)
-                    .eq(NobesTimetableCourse::getCatalog, catalog.trim()));
+                    .eq(NobesTimetableCourse::getCatalog, catalog.trim())
+                    .eq(NobesTimetableCourse::getAppliedTerm, term));
 
             Integer courseId = course.getCourseId();
 
@@ -615,17 +601,6 @@ public class ImportService {
     public void semImport() throws SQLException {
 
         // TODO: change the database connection info once change the database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "jxp51515";
-
-        Connection connection = DriverManager.getConnection(url, username, password);
-        String sql = "TRUNCATE TABLE nobes_timetable_sem";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
 
         List<NobesTimetableCourse> courses = iCourseService.list(null);
         HashSet<String> set = new HashSet<>();
@@ -643,10 +618,12 @@ public class ImportService {
         for (NobesTimetableTable sem : sems) {
             String catalog = sem.getCatalog();
             String subject = sem.getSubject();
+            String term = sem.getShortDesc().replaceAll("\\d", "").trim();
 
             NobesTimetableCourse course = iCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
                     .eq(NobesTimetableCourse::getSubject, subject)
-                    .eq(NobesTimetableCourse::getCatalog, catalog.trim()));
+                    .eq(NobesTimetableCourse::getCatalog, catalog.trim())
+                    .eq(NobesTimetableCourse::getAppliedTerm, term.trim()));
 
             Integer courseId = course.getCourseId();
 
@@ -663,6 +640,29 @@ public class ImportService {
 
         log.info("Sem Update Complete");
 
+    }
+
+    public void truncateOther() {
+        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
+        String username = "root";
+        String password = "jxp51515";
+
+        try {
+            Connection conn = DriverManager.getConnection(url, username, password);
+            Statement stmt = conn.createStatement();
+
+            String[] tables = {"nobes_timetable_course", "nobes_timetable_lecture", "nobes_timetable_lab", "nobes_timetable_sem"};
+
+            for (String table : tables) {
+                String sql = "TRUNCATE TABLE " + table;
+                stmt.executeUpdate(sql);
+                System.out.println("Table " + table + " truncated successfully.");
+            }
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

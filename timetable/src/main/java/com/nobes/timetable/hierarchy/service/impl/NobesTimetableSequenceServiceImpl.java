@@ -1,7 +1,7 @@
 package com.nobes.timetable.hierarchy.service.impl;
 
-import com.nobes.timetable.hierarchy.domain.NobesTimetableSequence;
-import com.nobes.timetable.hierarchy.dao.NobesTimetableSequenceMapper;
+import com.nobes.timetable.product.domain.NobesTimetableSequence;
+import com.nobes.timetable.product.dao.NobesTimetableSequenceMapper;
 import com.nobes.timetable.hierarchy.service.INobesTimetableSequenceService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

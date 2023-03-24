@@ -1,6 +1,6 @@
 package com.nobes.timetable.hierarchy.service;
 
-import com.nobes.timetable.hierarchy.domain.NobesTimetableProgram;
+import com.nobes.timetable.product.domain.NobesTimetableProgram;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

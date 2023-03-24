@@ -1,17 +1,16 @@
-package com.nobes.timetable.hierarchy.logic.seminar;
+package com.nobes.timetable.product.logic.seminar;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
-import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.dto.CourseIdDTO;
 import com.nobes.timetable.hierarchy.dto.ProgDTO;
-import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.vo.CourseVO;
 import com.nobes.timetable.hierarchy.vo.SemVO;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -20,17 +19,15 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Service
-public class SeminarsService {
+@Component
+public class SesService {
 
     @Resource
     INobesTimetableCourseService courseSelectService;
 
     @Resource
-    MainService cService;
+    SService sService;
 
-    @Resource
-    SemService semService;
     public HashMap getSems(ProgDTO progDTO) throws Exception {
 
         String program_Name = progDTO.getProgramName();
@@ -72,14 +69,14 @@ public class SeminarsService {
         }
 
         String excelName = head + "Sequencing.xls";
-        String path ="src/main/java/com/nobes/timetable/" + excelName;
+        String path = "src/main/java/com/nobes/timetable/" + excelName;
         File file = new File(path);
         Workbook workbook = WorkbookFactory.create(file);
 
         ArrayList<String> names = new ArrayList<>();
         ArrayList<CourseVO> cours = new ArrayList<>();
 
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++ ) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
             if (workbook.getSheetAt(i).getSheetName().equalsIgnoreCase(planName)) {
                 Sheet sheet = workbook.getSheetAt(i);
 
@@ -108,25 +105,52 @@ public class SeminarsService {
                 courseVO.setSubject("COMP");
                 courseVO.setCourseName("COMP");
                 cours.add(courseVO);
-                semMap.put(courseName,null);
+                semMap.put(courseName, null);
             } else if (courseName.equals("ITS")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
                 cours.add(courseVO);
-                semMap.put(courseName,null);
+                semMap.put(courseName, null);
             } else if (courseName.equals("PROG 1")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 1");
                 courseVO.setCourseName("PROG 1");
                 cours.add(courseVO);
-                semMap.put(courseName,null);
+                semMap.put(courseName, null);
             } else if (courseName.equals("PROG 2")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 2");
                 courseVO.setCourseName("PROG 2");
                 cours.add(courseVO);
-                semMap.put(courseName,null);
+                semMap.put(courseName, null);
+            } else if (courseName.contains("or")) {
+                // TODO: if there is a or case, just take the first one, need to be fixed
+
+                String[] courses = courseName.split("\\s*[Oo][Rr]\\s*");
+
+                String[] strings = courses[1].trim().split("\\s(?=\\d)");
+                ;
+
+                String catalog = strings[1].trim();
+                String subject = strings[0].trim();
+
+                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+                        .eq(NobesTimetableCourse::getCatalog, catalog)
+                        .eq(NobesTimetableCourse::getSubject, subject), false);
+
+                Integer courseId = course.getCourseId();
+
+                if (!course.getSem().equals("0") && !course.getSem().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<SemVO> sems = sService.getSem(courseIdDTO);
+
+                    semMap.put(coursename, sems);
+                }
+
             } else {
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
@@ -136,22 +160,17 @@ public class SeminarsService {
 
                 NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>().eq(NobesTimetableCourse::getCatalog, catalog).eq(NobesTimetableCourse::getSubject, subject), false);
 
-                // find course information
-                CourseVO courseVO;
+                Integer courseId = course.getCourseId();
 
-                if (course != null) {
-                    courseVO = cService.getCourseObj(course);
-                    cours.add(courseVO);
+                if (!course.getSem().equals("0") && !course.getSem().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<SemVO> sems = sService.getSem(courseIdDTO);
+
+                    semMap.put(coursename, sems);
                 }
-
-                String coursename = subject + " " + catalog;
-                CourseDTO courseDTO = new CourseDTO();
-                courseDTO.setCourseName(coursename);
-
-                ArrayList<SemVO> sems = semService.getSem(courseDTO);
-
-                semMap.put(coursename, sems);
-
             }
         }
 

@@ -1,4 +1,4 @@
-package com.nobes.timetable.hierarchy.domain;
+package com.nobes.timetable.product.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ * not used
  * </p>
  *
  * @author xiangpen

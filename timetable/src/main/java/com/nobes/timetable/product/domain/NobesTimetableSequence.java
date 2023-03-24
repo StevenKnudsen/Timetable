@@ -1,4 +1,4 @@
-package com.nobes.timetable.hierarchy.domain;
+package com.nobes.timetable.product.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;

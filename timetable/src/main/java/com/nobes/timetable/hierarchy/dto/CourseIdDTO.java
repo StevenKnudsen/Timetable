@@ -1,5 +1,6 @@
 package com.nobes.timetable.hierarchy.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,14 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProgDTO {
+public class CourseIdDTO {
 
-    private String programName;
-
-    private String termName;
-
-    private String planName;
-
-    private String componentId;
+    private Integer courseId;
 
 }

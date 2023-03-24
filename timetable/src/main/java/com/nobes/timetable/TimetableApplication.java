@@ -9,11 +9,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.nobes.timetable.core.save.*"))
+//@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.nobes.timetable.core.save.*"))
 @MapperScan({
 		"com.nobes.timetable.dao",
 		"com.nobes.timetable.*.dao",
-		"com.nobes.timetable.*.*.dao"
+		"com.nobes.timetable.*.*.dao",
+		"com.nobes.timetable.*.*.*.dao"
 })
 @EnableAsync
 public class TimetableApplication {

@@ -1,17 +1,17 @@
-package com.nobes.timetable.hierarchy.logic.lab;
+package com.nobes.timetable.product.logic.lecture;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.hierarchy.domain.NobesTimetableCourse;
-import com.nobes.timetable.hierarchy.dto.CourseDTO;
+import com.nobes.timetable.hierarchy.dto.CourseIdDTO;
 import com.nobes.timetable.hierarchy.dto.ProgDTO;
-import com.nobes.timetable.hierarchy.logic.MainService;
 import com.nobes.timetable.hierarchy.service.INobesTimetableCourseService;
 import com.nobes.timetable.hierarchy.vo.CourseVO;
-import com.nobes.timetable.hierarchy.vo.LabVO;
+import com.nobes.timetable.hierarchy.vo.LectureVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -20,19 +20,17 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Service
-public class LabsService {
+@Component
+@Slf4j
+public class LesService {
 
     @Resource
     INobesTimetableCourseService courseSelectService;
 
     @Resource
-    MainService cService;
+    LeService lService;
 
-    @Resource
-    LabService labService;
-
-    public HashMap getLabs(ProgDTO progDTO) throws Exception {
+    public HashMap getLecs(ProgDTO progDTO) throws Exception {
 
         String program_Name = progDTO.getProgramName();
         String term_Name = progDTO.getTermName();
@@ -73,14 +71,13 @@ public class LabsService {
         }
 
         String excelName = head + "Sequencing.xls";
-        String path ="src/main/java/com/nobes/timetable/" + excelName;
+        String path = "src/main/java/com/nobes/timetable/" + excelName;
         File file = new File(path);
         Workbook workbook = WorkbookFactory.create(file);
 
         ArrayList<String> names = new ArrayList<>();
-        ArrayList<CourseVO> cours = new ArrayList<>();
 
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++ ) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
             if (workbook.getSheetAt(i).getSheetName().equalsIgnoreCase(planName)) {
                 Sheet sheet = workbook.getSheetAt(i);
 
@@ -98,7 +95,7 @@ public class LabsService {
             }
         }
 
-        HashMap<String, ArrayList<LabVO>> labMap = new HashMap<>();
+        HashMap<String, ArrayList<LectureVO>> lecMap = new HashMap<>();
 
         for (int i = 0; i < names.size(); i++) {
 
@@ -108,27 +105,51 @@ public class LabsService {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("COMP");
                 courseVO.setCourseName("COMP");
-                cours.add(courseVO);
-                labMap.put(courseName,null);
+                lecMap.put(courseName, null);
             } else if (courseName.equals("ITS")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
-                cours.add(courseVO);
-                labMap.put(courseName,null);
+                lecMap.put(courseName, null);
             } else if (courseName.equals("PROG 1")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 1");
                 courseVO.setCourseName("PROG 1");
-                cours.add(courseVO);
-                labMap.put(courseName,null);
+                lecMap.put(courseName, null);
             } else if (courseName.equals("PROG 2")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG 2");
                 courseVO.setCourseName("PROG 2");
-                cours.add(courseVO);
-                labMap.put(courseName,null);
+                lecMap.put(courseName, null);
+            } else if (courseName.contains("or")) {
+                // TODO: if there is a or case, just take the first one, need to be fixed
+
+                String[] courses = courseName.split("\\s*[Oo][Rr]\\s*");
+
+                String[] strings = courses[1].trim().split("\\s(?=\\d)");
+                ;
+
+                String catalog = strings[1].trim();
+                String subject = strings[0].trim();
+
+                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+                        .eq(NobesTimetableCourse::getCatalog, catalog)
+                        .eq(NobesTimetableCourse::getSubject, subject), false);
+
+                Integer courseId = course.getCourseId();
+
+                if (!course.getLec().equals("0") && !course.getLec().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<LectureVO> lectures = lService.getLecture(courseIdDTO);
+
+                    lecMap.put(coursename, lectures);
+                }
+
             } else {
+
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
                 matcher.find();
@@ -137,25 +158,22 @@ public class LabsService {
 
                 NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>().eq(NobesTimetableCourse::getCatalog, catalog).eq(NobesTimetableCourse::getSubject, subject), false);
 
-                // find course information
-                CourseVO courseVO;
+                Integer courseId = course.getCourseId();
 
-                if (course != null) {
-                    courseVO = cService.getCourseObj(course);
-                    cours.add(courseVO);
+                if (!course.getLec().equals("0") && !course.getLec().equals("UNASSIGNED")) {
+                    String coursename = subject + " " + catalog;
+                    CourseIdDTO courseIdDTO = new CourseIdDTO();
+                    courseIdDTO.setCourseId(courseId);
+
+                    ArrayList<LectureVO> lectures = lService.getLecture(courseIdDTO);
+
+                    lecMap.put(coursename, lectures);
                 }
-
-                String coursename = subject + " " + catalog;
-                CourseDTO courseDTO = new CourseDTO();
-                courseDTO.setCourseName(coursename);
-
-                ArrayList<LabVO> labs = labService.getLab(courseDTO);
-
-                labMap.put(coursename, labs);
-
             }
         }
 
-        return labMap;
+        return lecMap;
     }
+
 }
+
