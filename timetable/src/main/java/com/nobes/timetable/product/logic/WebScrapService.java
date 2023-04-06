@@ -2,8 +2,8 @@ package com.nobes.timetable.product.logic;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.product.domain.NobesTimetableProgram;
-import com.nobes.timetable.hierarchy.dto.ProgDTO;
-import com.nobes.timetable.hierarchy.service.INobesTimetableProgramService;
+import com.nobes.timetable.calendar.dto.ProgDTO;
+import com.nobes.timetable.product.service.INobesTimetableProgramService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

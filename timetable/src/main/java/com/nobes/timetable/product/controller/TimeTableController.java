@@ -2,16 +2,11 @@ package com.nobes.timetable.product.controller;
 
 
 import com.nobes.timetable.core.entity.ResultBody;
-import com.nobes.timetable.product.dto.LectureDTO;
-import com.nobes.timetable.hierarchy.dto.ProgDTO;
+import com.nobes.timetable.calendar.dto.ProgDTO;
 import com.nobes.timetable.product.test.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/nobes/timetable/product")

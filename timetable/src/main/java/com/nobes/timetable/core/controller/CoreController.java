@@ -1,6 +1,7 @@
 package com.nobes.timetable.core.controller;
 
-import com.nobes.timetable.core.save.service.ImportService;
+import com.nobes.timetable.core.save.ImportTimetableService;
+import com.nobes.timetable.core.save.ImportVisualizerService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,28 +10,60 @@ import javax.annotation.Resource;
 import java.io.File;
 
 @RestController
-@RequestMapping("/nobes/timetable/hierarchy")
+@RequestMapping("/nobes/timetable/core")
 public class CoreController {
 
     @Resource
-    ImportService importService;
+    ImportTimetableService importTimetableService;
 
-    @GetMapping("/importExcel")
-    public void importExcel() throws Exception {
+    @Resource
+    ImportVisualizerService importVisualizerService;
 
-//        importService.truncateOther();
+    @GetMapping("/timetableImport")
+    public void timetableImport() throws Exception {
 
-        importService.truncate();
+        importTimetableService.truncate();
 
-        importService.excelImport(new File("src/main/java/com/nobes/timetable/table6.xls"));
+        importTimetableService.excelImport(new File("src/main/java/com/nobes/timetable/t8.xls"));
 
-        importService.courseImport();
+        importTimetableService.courseImport();
 
-        importService.lecImport();
+        importTimetableService.lecImport();
 
-        importService.labImport();
+        importTimetableService.labImport();
 
-        importService.semImport();
+        importTimetableService.semImport();
+
+    }
+
+    @GetMapping("/truncateTimetable")
+    public void truncateTimetable() throws Exception {
+
+        importTimetableService.truncateOther();
+
+        importTimetableService.truncate();
+
+    }
+
+    @GetMapping("/sequenceImport")
+    public void sequenceImport() throws Exception {
+
+        importTimetableService.sequenceImport(new File("src/main/java/com/nobes/timetable/PESequencing.xls"));
+
+    }
+
+    @GetMapping("/visualizerImport")
+    public void visualizerImport() throws Exception {
+
+        importVisualizerService.courseImport(new File("src/main/java/com/nobes/timetable/Courses.xls"));
+
+        importVisualizerService.courseGroupImport(new File("src/main/java/com/nobes/timetable/CourseCategories.xlsx"));
+    }
+
+    @GetMapping("/truncateVisualizer")
+    public void truncateVisualizer() throws Exception {
+
+        importVisualizerService.truncate();
 
     }
 

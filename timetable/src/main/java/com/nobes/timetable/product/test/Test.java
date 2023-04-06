@@ -4,7 +4,6 @@ package com.nobes.timetable.product.test;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.product.domain.CourseInfo;
 import com.nobes.timetable.product.service.ICourseInfoService;
-import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
