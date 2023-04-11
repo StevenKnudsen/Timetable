@@ -77,4 +77,8 @@ public class NobesVisualizerCourse implements Serializable {
     private String CourseDescription;
 
 
+    public boolean isNull() {
+        return getProgUnits() == null || getCalcFeeIndex() == null || getDuration() == null || getAlphaHours() == null || getCourseDescription() == null;
+    }
+
 }

@@ -4,8 +4,6 @@ package com.nobes.timetable.calendar.logic;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.calendar.domain.*;
-import com.nobes.timetable.calendar.logic.reqhelp.ParseHelpService;
-import com.nobes.timetable.calendar.logic.reqhelp.ReqService;
 import com.nobes.timetable.calendar.service.INobesTimetableAuService;
 import com.nobes.timetable.calendar.vo.CourseVO;
 import com.nobes.timetable.calendar.vo.LabVO;
@@ -24,9 +22,6 @@ public class MainService {
 
     @Resource
     INobesTimetableAuService iNobesTimetableAuService;
-
-    @Resource
-    ReqService reqService;
 
     public CourseVO getCourseObj(NobesTimetableCourse nobesTimetableCourse) throws Exception {
         CourseVO courseVO = OrikaUtils.convert(nobesTimetableCourse, CourseVO.class);
@@ -47,12 +42,6 @@ public class MainService {
         auCount.put("ED(sp)", Double.parseDouble(courseAU.getEDsp()));
 
         courseVO.setAUCount(auCount);
-
-        ArrayList<String> preReqs = reqService.pullPreReqs(nobesTimetableCourse.getDescription());
-        ArrayList<String> coReqs = reqService.pullCoReqs(nobesTimetableCourse.getDescription());
-
-        courseVO.setPrerequisite(preReqs);
-        courseVO.setCorequisite(coReqs);
 
         return courseVO;
     }
@@ -209,7 +198,6 @@ public class MainService {
 
         semVO.setTimes(sems);
         semVO.setSemName(labName);
-        semVO.setColor(ParseHelpService.generateRandomColorCode());
         semVO.setSection(sect);
 
         return semVO;

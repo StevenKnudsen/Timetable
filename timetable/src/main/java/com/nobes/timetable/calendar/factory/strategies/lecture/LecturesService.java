@@ -9,6 +9,8 @@ import com.nobes.timetable.calendar.service.INobesTimetableAuService;
 import com.nobes.timetable.calendar.service.INobesTimetableCourseService;
 import com.nobes.timetable.calendar.vo.CourseVO;
 import com.nobes.timetable.calendar.vo.LectureVO;
+import com.nobes.timetable.visualizer.domain.NobesVisualizerCourse;
+import com.nobes.timetable.visualizer.service.INobesVisualizerCourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,9 @@ public class LecturesService implements UniComponentStrategy {
 
     @Resource
     INobesTimetableAuService iNobesTimetableAuService;
+
+    @Resource
+    INobesVisualizerCourseService visualizerCourseService;
 
     @Resource
     com.nobes.timetable.calendar.factory.strategies.lecture.LecService lService;
@@ -127,13 +132,34 @@ public class LecturesService implements UniComponentStrategy {
                         CourseIdDTO courseIdDTO = new CourseIdDTO();
                         courseIdDTO.setCourseId(courseId);
 
-                        String description = course.getDescription();
+                        NobesVisualizerCourse nobesVisualizerCourse = visualizerCourseService.getOne(new LambdaQueryWrapper<NobesVisualizerCourse>()
+                                .eq(NobesVisualizerCourse::getCatalog, catalog)
+                                .eq(NobesVisualizerCourse::getSubject, subject), false);
+
+                        String description = "";
+
+                        if (nobesVisualizerCourse != null) {
+                            if (!nobesVisualizerCourse.isNull()) {
+                                String progUnits = nobesVisualizerCourse.getProgUnits();
+                                String calcFeeIndex = nobesVisualizerCourse.getCalcFeeIndex();
+                                String duration = nobesVisualizerCourse.getDuration();
+                                String alphaHours = nobesVisualizerCourse.getAlphaHours();
+                                String courseDescription = nobesVisualizerCourse.getCourseDescription();
+
+                                description = "★ " + progUnits.replaceAll("[^0-9]", "") + " (fi " + calcFeeIndex + ") " + "(" + duration + ", " + alphaHours + ") " + courseDescription;
+
+                            } else {
+                                description = nobesVisualizerCourse.getCourseDescription();
+                            }
+                        } else {
+                            description = course.getDescription();
+                        }
 
                         ArrayList<LectureVO> lectures = lService.getLecture(courseIdDTO);
 
                         for (LectureVO lectureVO : lectures) {
                             lectureVO.setDescp(description);
-                            lectureVO.setCourseTitle(courseTitle);
+                            lectureVO.setCourseTitle(courseName + " - " + courseTitle);
                             lectureVO.setAUCount(AUCount);
                         }
 

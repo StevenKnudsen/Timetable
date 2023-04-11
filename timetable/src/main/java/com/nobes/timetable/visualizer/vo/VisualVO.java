@@ -18,11 +18,15 @@ public class VisualVO {
 
     private String CourseName;
 
-    private ArrayList<Integer> attribute;
+    private ArrayList<String> attribute;
 
     private String Title;
 
     private String description;
 
     private HashMap<String, String> AUCount;
+
+    private ArrayList<String> preReqs;
+
+    private ArrayList<String> coReqs;
 }
