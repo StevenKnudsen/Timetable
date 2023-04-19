@@ -184,20 +184,6 @@ public class VisualService {
                         description = course.getCourseDescription();
                     }
 
-                    description += "\nPrerequisite: ";
-
-                    for (String preReq : preReqs) {
-                        description += preReq;
-                        description += ", ";
-                    }
-
-                    description += "\nCorequisite: ";
-
-                    for (String coReq : coReqs) {
-                        description += coReq;
-                    }
-
-
                     VisualVO visualVO = new VisualVO();
                     visualVO.setCourseName(courseName)
                             .setTitle(courseName + " - " + course.getTitle())

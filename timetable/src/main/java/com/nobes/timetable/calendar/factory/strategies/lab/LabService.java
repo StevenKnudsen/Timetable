@@ -16,6 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+/**
+*
+*  This class provides a method for retrieving lab information for a given course ID.
+*
+* */
 @Component
 @Slf4j
 public class LabService {
@@ -27,6 +33,12 @@ public class LabService {
     MainService mainService;
 
 
+    /**
+     * Find all the lab sections of a given course
+     *
+     * @param courseidDTO the DTO containing the course ID
+     * @return the list of labs
+     */
     public ArrayList<LabVO> getLab(CourseIdDTO courseidDTO) {
 
         ArrayList<LabVO> labs = new ArrayList<>();

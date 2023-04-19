@@ -25,6 +25,13 @@ public class SemService {
     MainService mainService;
 
 
+    /**
+     * Find all the seminar sections of a given course, if two or more seminar section's time is the same
+     * Think of these as one
+     *
+     * @param courseDTO the DTO containing the course ID
+     * @return the list of non-duplicate lectures
+     */
     public ArrayList<SemVO> getSem(CourseIdDTO courseDTO) {
 
         Integer courseId = courseDTO.getCourseId();

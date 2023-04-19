@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+
+/**
+ *
+ *  This class provides a method for retrieving lecture information for a given course ID.
+ *
+ * */
 @Service
 public class LecService {
     @Resource
@@ -21,6 +27,14 @@ public class LecService {
     @Resource
     MainService mainService;
 
+
+    /**
+     * Find all the lecture sections of a given course, if two or more lecture section's time is the same
+     * Think of these as one
+     *
+     * @param courseDTO the DTO containing the course ID
+     * @return the list of non-duplicate lectures
+     */
     public ArrayList<LectureVO> getLecture(CourseIdDTO courseDTO) throws Exception {
 
         ArrayList<LectureVO> lectureVOS = new ArrayList<>();
