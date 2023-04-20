@@ -29,4 +29,6 @@ public class VisualVO {
     private ArrayList<String> preReqs;
 
     private ArrayList<String> coReqs;
+
+    private ArrayList<String> group;
 }
