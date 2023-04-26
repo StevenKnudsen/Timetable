@@ -9,22 +9,23 @@ import com.nobes.timetable.visualizer.domain.NobesVisualizerCoursegroup;
 import com.nobes.timetable.visualizer.service.INobesVisualizerCourseService;
 import com.nobes.timetable.visualizer.service.INobesVisualizerCoursegroupService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+
+/**
+ * The Visualizer import Service to save the information in Excel files that will be used for the visualizer into database
+ * */
 @Service
 @Slf4j
 public class ImportVisualizerService {
@@ -35,7 +36,13 @@ public class ImportVisualizerService {
     @Resource
     INobesVisualizerCoursegroupService visualizerCoursegroupService;
 
-    public void courseImport(File file) throws Exception {
+    /**
+     * Save all the info in the input Excel files into nobes_visualizer_course table in the database
+     * print the success info in console if import succeed
+     * @param file the Excel file to be saved
+     * @throws IOException if any error occurs during the retrieval process.
+     */
+    public void courseImport(File file) {
 
         ExcelReader reader = ExcelUtil.getReader(file);
         List<List<Object>> rows = reader.read();
@@ -65,7 +72,15 @@ public class ImportVisualizerService {
         log.info("Courses import success");
     }
 
+    /**
+     * This method truncates the "nobes_visualizer_course" table in the mydatabase database using the MySQL JDBC driver.
+     * It uses a JDBC connection to the database and executes a TRUNCATE TABLE statement to clear all data from the table.
+     * The database connection information, including the URL, username, and password, is hardcoded and needs to be changed when using this method in another database.
+     * @throws SQLException if there is any error in the SQL statement execution.
+     */
     public void truncate() {
+
+        // TODO: change the database connection information when using it in another database
         String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
         String password = "jxp51515";
@@ -88,6 +103,12 @@ public class ImportVisualizerService {
         }
     }
 
+    /**
+     * Save all the info in the input Excel files into nobes_visualizer_coursegroup table in the database
+     * print the success info in console if import succeed
+     * @param file the Excel file to be saved
+     * @throws IOException if any error occurs during the retrieval process.
+     */
     public void courseGroupImport(File file) throws Exception {
         ExcelReader reader = ExcelUtil.getReader(file);
         Sheet sheet = reader.getSheet();
@@ -95,6 +116,7 @@ public class ImportVisualizerService {
         List<NobesVisualizerCoursegroup> coursegroups = visualizerCoursegroupService.list(null);
         ArrayList<String> list = new ArrayList<>();
 
+        // remove duplicate course
         for (NobesVisualizerCoursegroup group : coursegroups) {
             String courseName = group.getCourseName();
             if (!list.contains(courseName)) {
@@ -114,6 +136,7 @@ public class ImportVisualizerService {
                                 .setCourseGroup(StrUtil.trimToNull(sheet.getRow(0).getCell(j).getStringCellValue()))
                                 .setCourseColor(StrUtil.trimToNull(sheet.getRow(1).getCell(j).getStringCellValue()));
 
+                        // use the service interface for course-group table to save the processed data
                         visualizerCoursegroupService.save(nobesVisualizerCoursegroup);
                     }
                 }

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * return type of the Lectures
+ * */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -5,10 +5,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * translated from the old visualizer code
+ * */
 @Service
 @Slf4j
 public class ParseHelpService {
 
+    /**
+     * count numbers in a string
+     * */
     public static int countNums(String str) {
         int numCounter = 0;
         for (char c : str.toCharArray()) {
@@ -19,6 +25,9 @@ public class ParseHelpService {
         return numCounter;
     }
 
+    /**
+     * get the department (like "CH E" in "CH E 243") in a string
+     * */
     public static String pullDept(List<String> reqlist, int indx) {
         for (int n = 0; n < reqlist.get(indx).length(); n++) {
 

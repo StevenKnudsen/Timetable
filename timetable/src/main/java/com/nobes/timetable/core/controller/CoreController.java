@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.File;
 
+/**
+ *  This class represents a RESTful API controller for handling requests related to a database import.
+ *
+ *  In order to import or truncate databases, send a get request to these api to do corresponding database manipulation
+ *
+ * */
 @RestController
 @RequestMapping("/nobes/timetable/core")
 public class CoreController {
@@ -19,6 +25,11 @@ public class CoreController {
     @Resource
     ImportVisualizerService importVisualizerService;
 
+
+    /**
+     *  Import for timetable project
+     *  @throws Exception if an error occurs
+     * */
     @GetMapping("/timetableImport")
     public void timetableImport() throws Exception {
 
@@ -36,6 +47,9 @@ public class CoreController {
 
     }
 
+    /**
+     * truncate tables for the timetable project
+     * */
     @GetMapping("/truncateTimetable")
     public void truncateTimetable() throws Exception {
 
@@ -45,6 +59,9 @@ public class CoreController {
 
     }
 
+    /**
+     * api for importing the sequence table into database
+     * */
     @GetMapping("/sequenceImport")
     public void sequenceImport() throws Exception {
 
@@ -52,6 +69,10 @@ public class CoreController {
 
     }
 
+    /**
+     *  Import for visualizer project
+     *  @throws Exception if an error occurs
+     * */
     @GetMapping("/visualizerImport")
     public void visualizerImport() throws Exception {
 
@@ -60,6 +81,9 @@ public class CoreController {
         importVisualizerService.courseGroupImport(new File("src/main/java/com/nobes/timetable/CourseCategories.xlsx"));
     }
 
+    /**
+     *  Truncate tables for visualizer
+     * */
     @GetMapping("/truncateVisualizer")
     public void truncateVisualizer() throws Exception {
 

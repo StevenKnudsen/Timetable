@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+/**
+ * return type of the Courses
+ * */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

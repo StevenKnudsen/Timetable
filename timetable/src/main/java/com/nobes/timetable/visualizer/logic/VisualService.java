@@ -24,10 +24,16 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * This class is service for the visualizer that provide several functions to get all the courses information
+ * */
 @Service
 @Slf4j
 public class VisualService {
 
+    /**
+     * inject beans
+     * */
     @Resource
     INobesTimetableSequenceService sService;
 
@@ -46,29 +52,38 @@ public class VisualService {
     @Resource
     ReqService reqService;
 
+    /**
+     * For a given course, find its grad attributes, and return as a list of 12 numbers (0-3)
+     * @param courseName the name of the course
+     * @return an ArrayList of String objects representing the graduate attributes of the course
+     */
     public ArrayList<String> getGradAtts(String courseName) {
 
         ArrayList<String> gradAtts = new ArrayList<>();
 
         NobesVisualizerGrad gradAtt;
 
+        // remove the brackets
         if (courseName.contains("(")) {
             courseName = courseName.substring(0, courseName.indexOf("("));
         }
 
         if (courseName.contains("COMP")) {
+            // if the course is a complementary studies, then search CSOPT 100
             gradAtt = iNobesVisualizerGradService.getOne(new LambdaQueryWrapper<NobesVisualizerGrad>()
                     .eq(NobesVisualizerGrad::getCourseName, "CSOPT 100"), false);
         } else if (courseName.contains("ITS")) {
+            // if the course is an ITS elective, then search ITS ELEC
             gradAtt = iNobesVisualizerGradService.getOne(new LambdaQueryWrapper<NobesVisualizerGrad>()
                     .eq(NobesVisualizerGrad::getCourseName, "ITS ELEC"), false);
         } else if (courseName.contains("PROG")) {
+            // TODO: if the course is a program elective, currently can not resolve it, not enough information
             for (int i = 0; i < 12; i++) {
                 gradAtts.add("0");
             }
             return gradAtts;
-
         } else {
+            // generally, if any grad attributes are null, use 0 to indicate that, else use appropriate numbers
             gradAtt = iNobesVisualizerGradService.getOne(new LambdaQueryWrapper<NobesVisualizerGrad>()
                     .eq(NobesVisualizerGrad::getCourseName, courseName), false);
         }
@@ -97,12 +112,21 @@ public class VisualService {
         return gradAtts;
     }
 
+    /**
+     * For a given course and its accreditation unit map, find its course group
+     * if the course is in this group, the value in that corresponding index will be set to "1", else "0"
+     * @param courseName the name of the course
+     * @param AUCount the accreditation unit map
+     * @return an ArrayList indicating the course group
+     */
     public ArrayList<String> getCourseGroup(String courseName, HashMap<String, String> AUCount) {
 
+        // remove the brackets
         if (courseName.contains("(")) {
             courseName = courseName.substring(0, courseName.indexOf("("));
         }
 
+        // initialize an empty list
         ArrayList<String> courseGroup = new ArrayList<>(Collections.nCopies(9, "0"));
 
         if (courseName.toUpperCase().contains("COMP")) {
@@ -114,6 +138,7 @@ public class VisualService {
         } else if (courseName.toUpperCase().contains("WKEXP")) {
             courseGroup.set(4, "1");
         } else {
+            // for general cases, first query the course group table to get the course group
             NobesVisualizerCoursegroup group = iNobesVisualizerCoursegroupService.getOne(new LambdaQueryWrapper<NobesVisualizerCoursegroup>()
                     .eq(NobesVisualizerCoursegroup::getCourseName, courseName.toUpperCase()), false);
 
@@ -139,6 +164,8 @@ public class VisualService {
                         break;
                 }
 
+                // if the course has accreditation in other fields, add that to its course group,
+                // i.e., like Course A's AUCount: { "Math" : 44.7 }, then Course A is in Group: "Math"
                 AUCount.forEach((key, value) -> {
                     switch (key) {
                         case "Math":
@@ -171,24 +198,33 @@ public class VisualService {
         return courseGroup;
     }
 
+    /**
+     * This function is used to find all the course information in the given program and given term
+     * i.e., prerequisites, corequisites, grad attributes, course description
+     * @param visualDTO visualDTO containing the program name and term name
+     * @return a Hashmap which keys are course name and values are VisualVO objects that contains course info
+     */
     public HashMap getCourses(VisualDTO visualDTO) throws Exception {
         HashMap<String, ArrayList<VisualVO>> programMap = new HashMap<>();
 
         String planName = visualDTO.getPlanName();
         String programName = visualDTO.getProgramName();
 
+        // get all the terms and courses by the given program name and plan name
         List<NobesTimetableSequence> courseList = sService.list(new LambdaQueryWrapper<NobesTimetableSequence>()
                 .eq(NobesTimetableSequence::getProgramName, programName)
                 .eq(NobesTimetableSequence::getPlanName, planName));
 
         ArrayList<String> orderList = new ArrayList<>();
 
+        // remove duplicate terms
         for (NobesTimetableSequence sequence : courseList) {
             if (!orderList.contains(sequence.getTermName())) {
                 orderList.add(sequence.getTermName());
             }
         }
 
+        // group by the term names and map each course name to a list associated with that terms
         Map<String, List<String>> map = courseList.stream()
                 .collect(Collectors.groupingBy(NobesTimetableSequence::getTermName,
                         Collectors.mapping(NobesTimetableSequence::getCourseName, Collectors.toList())));
@@ -204,6 +240,7 @@ public class VisualService {
 
                 if (courseName.contains("COMP") || courseName.contains("ITS") || courseName.contains("PROG")) {
 
+                    // if the course is a selective or elective course
                     ArrayList gradAtts = getGradAtts(courseName);
 
                     ArrayList<String> courseGroup = getCourseGroup(courseName, null);
@@ -216,6 +253,7 @@ public class VisualService {
 
                     visualVOS.add(visualVO);
                 } else if (courseName.contains("WKEXP")) {
+                    // if the course is a coop term course like WKEXP 901
                     Pattern pattern = Pattern.compile("\\d+");
                     Matcher matcher = pattern.matcher(courseName);
                     matcher.find();
@@ -260,6 +298,9 @@ public class VisualService {
 
                 } else {
 
+                    // in general cases
+
+                    // TODO: if there is an or, currently just take the first one, to be fixed
                     if (courseName.contains("or")) {
                         String[] ors = courseName.split("or");
                         courseName = ors[0].trim();
@@ -272,6 +313,7 @@ public class VisualService {
                     String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
 
+                    // get the AU info by querying the AU table in the database
                     NobesTimetableAu au = iTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
                             .eq(NobesTimetableAu::getCourseName, subject + " " + catalog), false);
 
@@ -292,6 +334,7 @@ public class VisualService {
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, HashMap::new));
                     }
 
+                    // get the grad attributes
                     ArrayList<String> gradAtts = getGradAtts(courseName);
 
                     NobesVisualizerCourse course = iNobesVisualizerCourseService.getOne(new LambdaQueryWrapper<NobesVisualizerCourse>()
@@ -300,9 +343,11 @@ public class VisualService {
 
                     String courseDescription1 = course.getCourseDescription();
 
+                    // get the prerequisites and corequisites
                     ArrayList<String> preReqs = reqService.pullPreReqs(courseDescription1);
                     ArrayList<String> coReqs = reqService.pullCoReqs(courseDescription1);
 
+                    // get the description
                     String description = "";
 
                     if (!course.isNull()) {
@@ -318,6 +363,7 @@ public class VisualService {
                         description = course.getCourseDescription();
                     }
 
+                    // get the course group
                     ArrayList<String> courseGroup = getCourseGroup(courseName, AUCount);
 
                     VisualVO visualVO = new VisualVO();
@@ -334,13 +380,12 @@ public class VisualService {
                 }
             }
 
-            log.info(key);
-
             programMap.put(key, visualVOS);
         }
 
         LinkedHashMap<String, ArrayList<VisualVO>> orderedProgramMap = new LinkedHashMap<>();
 
+        // remove duplicate course information
         for (String key : orderList) {
             if (programMap.containsKey(key)) {
                 orderedProgramMap.put(key, programMap.get(key));

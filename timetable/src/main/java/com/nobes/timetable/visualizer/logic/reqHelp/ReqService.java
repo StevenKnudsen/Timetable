@@ -10,6 +10,9 @@ import java.util.List;
 import static com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService.countNums;
 import static com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService.pullDept;
 
+/**
+ * translated from the old visualizer code
+ * */
 @Service
 @Slf4j
 public class ReqService {

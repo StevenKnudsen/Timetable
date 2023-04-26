@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ *
+ *  This class provides a method for retrieving seminar information for a given course ID.
+ *
+ * */
 @Component
 @Slf4j
 public class SemService {

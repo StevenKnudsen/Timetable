@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * class for the RESTFul api parameters
+ * */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

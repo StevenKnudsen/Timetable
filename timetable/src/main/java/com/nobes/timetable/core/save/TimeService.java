@@ -11,6 +11,12 @@ import java.util.Date;
 
 @Service
 public class TimeService {
+
+    /**
+     * convert the cell in data format into a string
+     * @param cell a cell in an Excel file
+     * @return stirng format of that cell.
+     */
     public String getTime(Cell cell) {
 
         String format;
@@ -24,6 +30,7 @@ public class TimeService {
         } else {
             format = null;
         }
+
         return format;
     }
 }

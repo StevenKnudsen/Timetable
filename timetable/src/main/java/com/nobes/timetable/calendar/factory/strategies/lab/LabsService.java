@@ -16,6 +16,11 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class represents a concrete implementation of the UniComponentStrategy interface for handling Lab information.
+ * The lab information is retrieved based on the course names, and the returned HashMap
+ * contains the course name as key and an ArrayList of LabVO objects as value.
+ * */
 @Component(value = "2")
 @Slf4j
 public class LabsService implements UniComponentStrategy {
@@ -26,6 +31,14 @@ public class LabsService implements UniComponentStrategy {
     @Resource
     LabService labService;
 
+
+    /**
+     * rewrite the handle function in public interface to retrieve lecture information for the given course names and term
+     * @param names an ArrayList of course names
+     * @param term a string representing the selected term
+     * @return a HashMap containing all the detailed lab information for the given course names
+     * @throws Exception if an error occurs while retrieving the lab information
+     * */
     @Override
     public HashMap handle(ArrayList<String> names, String term) throws Exception {
 
@@ -45,20 +58,10 @@ public class LabsService implements UniComponentStrategy {
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
                 labMap.put(courseName, null);
-            } else if (courseName.equals("PROG")) {
+            } else if (courseName.contains("PROG")) {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG");
                 courseVO.setCourseName("PROG");
-                labMap.put(courseName, null);
-            } else if (courseName.equals("PROG 1")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 1");
-                courseVO.setCourseName("PROG 1");
-                labMap.put(courseName, null);
-            } else if (courseName.equals("PROG 2")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 2");
-                courseVO.setCourseName("PROG 2");
                 labMap.put(courseName, null);
             } else if (courseName.contains("WKEXP")) {
                 labMap.put(courseName, null);

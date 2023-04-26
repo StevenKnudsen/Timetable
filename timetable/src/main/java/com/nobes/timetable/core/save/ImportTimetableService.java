@@ -12,12 +12,16 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 
 
+/**
+ * The Timetable import Service to save the information in Excel files that will be used for the timetable project into database
+ * */
 @Service
 @Slf4j
 public class ImportTimetableService {
@@ -43,12 +47,16 @@ public class ImportTimetableService {
     @Resource
     INobesTimetableSequenceService iNobesTimetableSequenceService;
 
-    /*
-     * save the timetable Excel files to the database as original data table
-     * */
+    /**
+     * Save all the info in the input Excel files into nobes_timetable_table in the database
+     * These are the raw data that will be used in the import function for other tables
+     * print the success info in console if import succeed
+     * @param file the Excel file to be saved
+     * @throws IOException if any error occurs during the retrieval process.
+     */
     public void excelImport(File file) throws Exception {
 
-        // TODO: change the database connection info once change the database
+        // TODO: change the database connection info once use another database
         String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
         String password = "jxp51515";
@@ -362,6 +370,7 @@ public class ImportTimetableService {
                 nobesTimetableTable.setMaxUnits(sheet.getRow(i).getCell(43).getStringCellValue());
             }
 
+            // get the NobesTimetableTable object and save them
             preparedStatement.setString(1, nobesTimetableTable.getAcadOrg());
             preparedStatement.setString(2, nobesTimetableTable.getTerm());
             preparedStatement.setString(3, nobesTimetableTable.getShortDesc());
@@ -438,9 +447,11 @@ public class ImportTimetableService {
 
     }
 
-    /*
-     * populate the course data from Excel files to the course table
-     * */
+    /**
+     * Grab info from the raw table and save courses info (that is unique) into nobes_timetable_course table
+     * print the success info in console if import succeed
+     * @throws Exception if any error occurs during the saving process.
+     */
     public void courseImport() throws SQLException {
 
         // TODO: change the database connection info once change the database
@@ -460,6 +471,7 @@ public class ImportTimetableService {
             String courseName = courseTitle + term;
 
 
+            // only save one course once, make sure every course in the course table has unique course name and course id.
             if (!courseNames.contains(courseName)) {
                 String approvedHrs = course.getApprovedHrs();
 
@@ -467,6 +479,7 @@ public class ImportTimetableService {
                 String newCatalog = newcourse.getCatalog().trim();
                 newcourse.setCatalog(newCatalog);
 
+                // set the proper approved hours
                 if (approvedHrs.contains("-")) {
                     String[] hrs = approvedHrs.split("-");
                     newcourse.setLec(hrs[0]);
@@ -500,15 +513,12 @@ public class ImportTimetableService {
 
     }
 
-    /*
-     * populate the lecture data from Excel files to the lecture table
-     * */
+    /**
+     * Grab info from the raw table which component is a lecture and save into the lecture table in the database
+     * print the success info in console if import succeed
+     * @throws Exception if any error occurs during the saving process.
+     */
     public void lecImport() throws SQLException {
-
-        /*
-         * truncate the previous table to avoid duplicate data
-         * */
-        // TODO: change the database connection info once change the database
 
         List<NobesTimetableCourse> courses = iCourseService.list(null);
         HashSet<NobesTimetableCourse> set = new HashSet<>();
@@ -519,9 +529,12 @@ public class ImportTimetableService {
             set.add(course);
         }
 
+        // query the database where the component is "LEC"
         List<NobesTimetableTable> lecs = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
                 .eq(NobesTimetableTable::getComponent, "LEC"));
 
+
+        // Save all the lecture info into lecture table with lectureId as the primary key
         for (NobesTimetableTable lec : lecs) {
 
             String catalog = lec.getCatalog();
@@ -551,15 +564,16 @@ public class ImportTimetableService {
         log.info("Lecture Import Complete");
     }
 
-    /*
-     * populate the lab data from Excel files to the lab table
-     * */
+    /**
+     * Grab info from the raw table which component is a lab and save them into the lab table in the database
+     * print the success info in console if import succeed
+     * @throws Exception if any error occurs during the saving process.
+     */
     public void labImport() throws SQLException {
-
-        // TODO: change the database connection info once change the database
 
         Integer labId = 1;
 
+        // query the raw data database for all the courses with a component "LBL" or "LAB"
         List<NobesTimetableTable> lbls = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
                 .eq(NobesTimetableTable::getComponent, "LBL"));
 
@@ -572,6 +586,7 @@ public class ImportTimetableService {
             labs.add(lbl);
         }
 
+        // Save all the lab info into lab table with labId as the primary key
         for (NobesTimetableTable lab : labs) {
             String catalog = lab.getCatalog();
             String subject = lab.getSubject();
@@ -598,9 +613,12 @@ public class ImportTimetableService {
 
     }
 
+    /**
+     * Grab info from the raw table which component is a sem and save them into the sem table in the database
+     * print the success info in console if import succeed
+     * @throws Exception if any error occurs during the saving process.
+     */
     public void semImport() throws SQLException {
-
-        // TODO: change the database connection info once change the database
 
         List<NobesTimetableCourse> courses = iCourseService.list(null);
         HashSet<String> set = new HashSet<>();
@@ -612,9 +630,11 @@ public class ImportTimetableService {
             set.add(courseName);
         }
 
+        // query the raw data database for all the courses with a component "SEM"
         List<NobesTimetableTable> sems = TableService.list(new LambdaQueryWrapper<NobesTimetableTable>()
                 .eq(NobesTimetableTable::getComponent, "SEM"));
 
+        // Save all the sem info into sem table with labId as the primary key
         for (NobesTimetableTable sem : sems) {
             String catalog = sem.getCatalog();
             String subject = sem.getSubject();
@@ -642,7 +662,12 @@ public class ImportTimetableService {
 
     }
 
+    /**
+     * truncate all the tables in the database by JDBC
+     */
     public void truncateOther() {
+
+        // TODO: change the database connection info once change the database
         String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
         String password = "jxp51515";
@@ -665,6 +690,10 @@ public class ImportTimetableService {
         }
     }
 
+    /**
+     * save the info from sequence Excel files into sequence table in the database
+     * @throws Exception if any error occurs during the saving process.
+     */
     public void sequenceImport(File file) throws Exception {
         Workbook workbook = WorkbookFactory.create(file);
         String fileName = file.getName();

@@ -21,6 +21,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+/**
+ * This class represents a concrete implementation of the UniComponentStrategy interface for handling lecture information.
+ * The lecture information is retrieved based on the course names, and the returned HashMap
+ * contains the course name as key and an ArrayList of LectureVO objects as value.
+ * */
 @Component(value = "1")
 @Slf4j
 public class LecturesService implements UniComponentStrategy {
@@ -37,6 +43,14 @@ public class LecturesService implements UniComponentStrategy {
     @Resource
     com.nobes.timetable.calendar.factory.strategies.lecture.LecService lService;
 
+
+    /**
+     * rewrite the handle function in public interface to retrieve lecture information for the given course names and term
+     * @param names an ArrayList of course names
+     * @param term a string representing the selected term
+     * @return a HashMap containing all the detailed lecture information for the given course names
+     * @throws Exception if an error occurs while retrieving the lecture information
+     * */
     @Override
     public HashMap handle(ArrayList<String> names, String term) throws Exception {
 
@@ -47,31 +61,25 @@ public class LecturesService implements UniComponentStrategy {
             String courseName = names.get(i);
 
             if (courseName.equals("COMP")) {
+                // if the course is a complementary selective
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("COMP");
                 courseVO.setCourseName("COMP");
                 lecMap.put(courseName, null);
             } else if (courseName.equals("ITS")) {
+                // if the course is a ITS selective
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("ITS");
                 courseVO.setCourseName("ITS");
                 lecMap.put(courseName, null);
-            } else if (courseName.equals("PROG")) {
+            } else if (courseName.contains("PROG")) {
+                // if the course is a program elective
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG");
                 courseVO.setCourseName("PROG");
                 lecMap.put(courseName, null);
-            } else if (courseName.equals("PROG 1")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 1");
-                courseVO.setCourseName("PROG 1");
-                lecMap.put(courseName, null);
-            } else if (courseName.equals("PROG 2")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 2");
-                courseVO.setCourseName("PROG 2");
-                lecMap.put(courseName, null);
             } else if (courseName.contains("WKEXP")) {
+                // if the course is a coop term course
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
                 matcher.find();
@@ -92,6 +100,7 @@ public class LecturesService implements UniComponentStrategy {
                 lecs.add(lectureVO);
                 lecMap.put(courseName, lecs);
             } else {
+                // find the catalog and subject of the given course
                 Pattern pattern = Pattern.compile("\\d+");
                 Matcher matcher = pattern.matcher(courseName);
                 matcher.find();
@@ -103,6 +112,7 @@ public class LecturesService implements UniComponentStrategy {
                         .eq(NobesTimetableCourse::getSubject, subject)
                         .eq(NobesTimetableCourse::getAppliedTerm, term), false);
 
+                // find the accreditation units information and store to AUCount
                 NobesTimetableAu au = iNobesTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
                         .eq(NobesTimetableAu::getCourseName, subject + " " + catalog), false);
 
@@ -124,6 +134,8 @@ public class LecturesService implements UniComponentStrategy {
                 }
 
                 if (course != null) {
+
+                    // find the course description
                     Integer courseId = course.getCourseId();
                     String courseTitle = course.getDescr();
 

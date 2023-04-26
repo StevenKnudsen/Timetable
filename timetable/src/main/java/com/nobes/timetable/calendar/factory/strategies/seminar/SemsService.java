@@ -16,6 +16,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * This class represents a concrete implementation of the UniComponentStrategy interface for handling seminar information.
+ * The seminar information is retrieved based on the course names, and the returned HashMap
+ * contains the course name as key and an ArrayList of SeminarVO objects as value.
+ * */
 @Component(value = "3")
 @Slf4j
 public class SemsService implements UniComponentStrategy {
@@ -26,6 +32,14 @@ public class SemsService implements UniComponentStrategy {
     @Resource
     SemService semService;
 
+
+    /**
+     * rewrite the handle function in public interface to retrieve seminar information for the given course names and term
+     * @param names an ArrayList of course names
+     * @param term a string representing the selected term
+     * @return a HashMap containing all the detailed seminar information for the given course names
+     * @throws Exception if an error occurs while retrieving the seminar information
+     * */
     @Override
     public HashMap handle(ArrayList<String> names, String term) throws Exception {
         HashMap<String, ArrayList<SemVO>> semMap = new HashMap<>();
@@ -48,16 +62,6 @@ public class SemsService implements UniComponentStrategy {
                 CourseVO courseVO = new CourseVO();
                 courseVO.setSubject("PROG");
                 courseVO.setCourseName("PROG");
-                semMap.put(courseName, null);
-            } else if (courseName.equals("PROG 1")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 1");
-                courseVO.setCourseName("PROG 1");
-                semMap.put(courseName, null);
-            } else if (courseName.equals("PROG 2")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 2");
-                courseVO.setCourseName("PROG 2");
                 semMap.put(courseName, null);
             } else if (courseName.contains("WKEXP")) {
                 semMap.put(courseName, null);

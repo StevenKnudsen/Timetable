@@ -16,13 +16,28 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+/**
+ *
+ * This class represents the Main Service responsible for converting NobesTimetableCourse, NobesTimetableLecture,
+ * NobesTimetableLab, and NobesTimetableSem objects into corresponding CourseVO, LectureVO, LabVO, and SemVO (they are all return types) objects
+ *
+ * */
 @Component
 @Slf4j
 public class MainService {
 
+    /**
+     * inject a bean of INobesTimetableAuService type
+     * */
     @Resource
     INobesTimetableAuService iNobesTimetableAuService;
 
+
+
+    /**
+     * unused method
+     * */
     public CourseVO getCourseObj(NobesTimetableCourse nobesTimetableCourse) throws Exception {
         CourseVO courseVO = OrikaUtils.convert(nobesTimetableCourse, CourseVO.class);
 
@@ -47,7 +62,17 @@ public class MainService {
     }
 
 
+
+    /**
+     * Converts the given NobesTimetableLecture object into a corresponding LectureVO object and sets the lecture name, section, time and
+     * duration for each lecture sessions.
+     * @param nobesTimetableLecture the NobesTimetableLecture object to be converted.
+     * @return the corresponding LectureVO.
+     */
     public LectureVO getLectureObj(NobesTimetableLecture nobesTimetableLecture) {
+
+        // (OrikaUtils.convert(B b, A.class)), OrikaUtils will convert a B type object b in to A type and copy all
+        // the attribute value(same attribute name in A and B) from B to A
         LectureVO lectureVO = OrikaUtils.convert(nobesTimetableLecture, LectureVO.class);
 
         String lectureName = nobesTimetableLecture.getSubject()
@@ -55,9 +80,11 @@ public class MainService {
                 + nobesTimetableLecture.getComponent() + " "
                 + nobesTimetableLecture.getSect();
 
-        lectureVO.setLecName(lectureName);
-        lectureVO.setSection(nobesTimetableLecture.getSect());
+        lectureVO.setLecName(lectureName);//set the lecture session name
+        lectureVO.setSection(nobesTimetableLecture.getSect());//set the section
 
+
+        // set the lecture time and duration
         String mon = nobesTimetableLecture.getMon();
         String tues = nobesTimetableLecture.getTues();
         String wed = nobesTimetableLecture.getWed();
@@ -98,6 +125,12 @@ public class MainService {
     }
 
 
+    /**
+     * Converts the given NobesTimetableLab object into a corresponding LabVO object and sets the section, time and
+     * duration for each lab sessions.
+     * @param nobesTimetableLab the NobesTimetableLab object to be converted.
+     * @return the corresponding LabVO.
+     */
     public LabVO getLabObj(NobesTimetableLab nobesTimetableLab) {
 
         LabVO labVO = OrikaUtils.convert(nobesTimetableLab, LabVO.class);
@@ -151,6 +184,12 @@ public class MainService {
     }
 
 
+    /**
+     * Converts the given NobesTimetableSem object into a corresponding LabVO object and sets the section, time and
+     * duration for each seminar sessions.
+     * @param nobesTimetableSem the NobesTimetableSem object to be converted.
+     * @return the corresponding SemVO.
+     */
     public SemVO getSemObj(NobesTimetableSem nobesTimetableSem) {
         SemVO semVO = OrikaUtils.convert(nobesTimetableSem, SemVO.class);
 
