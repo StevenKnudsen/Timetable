@@ -1,7 +1,6 @@
 package com.nobes.timetable.visualizer.controller;
 
 
-import com.nobes.timetable.calendar.dto.ProgramDTO;
 import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.visualizer.dto.VisualDTO;
 import com.nobes.timetable.visualizer.logic.VisualService;

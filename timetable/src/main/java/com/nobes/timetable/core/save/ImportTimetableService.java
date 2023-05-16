@@ -57,9 +57,9 @@ public class ImportTimetableService {
     public void excelImport(File file) throws Exception {
 
         // TODO: change the database connection info once use another database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
+        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
-        String password = "jxp51515";
+        String password = "Jxp_51515";
 
         Connection connection = DriverManager.getConnection(url, username, password);
 
@@ -433,9 +433,9 @@ public class ImportTimetableService {
      * */
     public void truncate() throws Exception {
 
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
+        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
-        String password = "jxp51515";
+        String password = "Jxp_51515";
 
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_table";
@@ -668,9 +668,9 @@ public class ImportTimetableService {
     public void truncateOther() {
 
         // TODO: change the database connection info once change the database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
+        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
-        String password = "jxp51515";
+        String password = "Jxp_51515";
 
         try {
             Connection conn = DriverManager.getConnection(url, username, password);

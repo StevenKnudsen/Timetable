@@ -81,9 +81,9 @@ public class ImportVisualizerService {
     public void truncate() {
 
         // TODO: change the database connection information when using it in another database
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
+        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
         String username = "root";
-        String password = "jxp51515";
+        String password = "Jxp_51515";
 
         try {
             Connection conn = DriverManager.getConnection(url, username, password);

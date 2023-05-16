@@ -15,7 +15,7 @@ public class ParseHelpService {
     /**
      * count numbers in a string
      * */
-    public static int countNums(String str) {
+    public int countNums(String str) {
         int numCounter = 0;
         for (char c : str.toCharArray()) {
             if (Character.isDigit(c)) {
@@ -28,7 +28,7 @@ public class ParseHelpService {
     /**
      * get the department (like "CH E" in "CH E 243") in a string
      * */
-    public static String pullDept(List<String> reqlist, int indx) {
+    public String pullDept(List<String> reqlist, int indx) {
         for (int n = 0; n < reqlist.get(indx).length(); n++) {
 
             if (Character.isDigit(reqlist.get(indx).charAt(n))) {

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.swing.text.StyledEditorKit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,14 +27,14 @@ import java.util.stream.Stream;
 
 /**
  * This class is service for the visualizer that provide several functions to get all the courses information
- * */
+ */
 @Service
 @Slf4j
 public class VisualService {
 
     /**
      * inject beans
-     * */
+     */
     @Resource
     INobesTimetableSequenceService sService;
 
@@ -54,6 +55,7 @@ public class VisualService {
 
     /**
      * For a given course, find its grad attributes, and return as a list of 12 numbers (0-3)
+     *
      * @param courseName the name of the course
      * @return an ArrayList of String objects representing the graduate attributes of the course
      */
@@ -115,8 +117,9 @@ public class VisualService {
     /**
      * For a given course and its accreditation unit map, find its course group
      * if the course is in this group, the value in that corresponding index will be set to "1", else "0"
+     *
      * @param courseName the name of the course
-     * @param AUCount the accreditation unit map
+     * @param AUCount    the accreditation unit map
      * @return an ArrayList indicating the course group
      */
     public ArrayList<String> getCourseGroup(String courseName, HashMap<String, String> AUCount) {
@@ -201,6 +204,7 @@ public class VisualService {
     /**
      * This function is used to find all the course information in the given program and given term
      * i.e., prerequisites, corequisites, grad attributes, course description
+     *
      * @param visualDTO visualDTO containing the program name and term name
      * @return a Hashmap which keys are course name and values are VisualVO objects that contains course info
      */
@@ -296,87 +300,22 @@ public class VisualService {
 
                     visualVOS.add(visualVO);
 
-                } else {
-
-                    // in general cases
+                } else if (courseName.contains("or")) {
 
                     // TODO: if there is an or, currently just take the first one, to be fixed
-                    if (courseName.contains("or")) {
-                        String[] ors = courseName.split("or");
-                        courseName = ors[0].trim();
+                    String[] ors = courseName.split("or");
+
+                    for (int i = 0; i < ors.length; i++) {
+                        if (i + 1 < ors.length) {
+                            getCourseInfo(visualVOS, ors[i].trim(), ors[i + 1].trim());
+                        } else {
+                            getCourseInfo(visualVOS, ors[i].trim(), null);
+                        }
                     }
 
-                    Pattern pattern = Pattern.compile("\\d+");
-                    Matcher matcher = pattern.matcher(courseName);
-                    matcher.find();
-                    String catalog = matcher.group(0);
-                    String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
-
-
-                    // get the AU info by querying the AU table in the database
-                    NobesTimetableAu au = iTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
-                            .eq(NobesTimetableAu::getCourseName, subject + " " + catalog), false);
-
-                    HashMap<String, String> AUCount = new HashMap<>();
-
-                    if (au != null) {
-                        AUCount = Stream.of(
-                                        new AbstractMap.SimpleEntry<>("Math", au.getMath()),
-                                        new AbstractMap.SimpleEntry<>("Natural Sciences", au.getNaturalSciences()),
-                                        new AbstractMap.SimpleEntry<>("Complimentary Studies", au.getComplimentaryStudies()),
-                                        new AbstractMap.SimpleEntry<>("Engineering Design", au.getEngineeringDesign()),
-                                        new AbstractMap.SimpleEntry<>("Engineering Science", au.getEngineeringScience()),
-                                        new AbstractMap.SimpleEntry<>("Other", au.getOther()),
-                                        new AbstractMap.SimpleEntry<>("EDsp", au.getEDsp()),
-                                        new AbstractMap.SimpleEntry<>("ESsp", au.getESsp())
-                                )
-                                .filter(entry -> !entry.getValue().equals("0"))
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, HashMap::new));
-                    }
-
-                    // get the grad attributes
-                    ArrayList<String> gradAtts = getGradAtts(courseName);
-
-                    NobesVisualizerCourse course = iNobesVisualizerCourseService.getOne(new LambdaQueryWrapper<NobesVisualizerCourse>()
-                            .eq(NobesVisualizerCourse::getCatalog, catalog)
-                            .eq(NobesVisualizerCourse::getSubject, subject), false);
-
-                    String courseDescription1 = course.getCourseDescription();
-
-                    // get the prerequisites and corequisites
-                    ArrayList<String> preReqs = reqService.pullPreReqs(courseDescription1);
-                    ArrayList<String> coReqs = reqService.pullCoReqs(courseDescription1);
-
-                    // get the description
-                    String description = "";
-
-                    if (!course.isNull()) {
-                        String progUnits = course.getProgUnits();
-                        String calcFeeIndex = course.getCalcFeeIndex();
-                        String duration = course.getDuration();
-                        String alphaHours = course.getAlphaHours();
-                        String courseDescription = course.getCourseDescription();
-
-                        description = "★ " + progUnits.replaceAll("[^0-9]", "") + " (fi " + calcFeeIndex + ") " + "(" + duration + ", " + alphaHours + ") " + courseDescription;
-
-                    } else {
-                        description = course.getCourseDescription();
-                    }
-
-                    // get the course group
-                    ArrayList<String> courseGroup = getCourseGroup(courseName, AUCount);
-
-                    VisualVO visualVO = new VisualVO();
-                    visualVO.setCourseName(courseName)
-                            .setTitle(courseName + " - " + course.getTitle())
-                            .setDescription(description)
-                            .setAUCount(AUCount)
-                            .setAttribute(gradAtts)
-                            .setPreReqs(preReqs)
-                            .setCoReqs(coReqs)
-                            .setGroup(courseGroup);
-
-                    visualVOS.add(visualVO);
+                } else {
+                    // in general cases
+                    getCourseInfo(visualVOS, courseName, null);
                 }
             }
 
@@ -393,6 +332,82 @@ public class VisualService {
         }
 
         return orderedProgramMap;
+    }
+
+    public void getCourseInfo(ArrayList<VisualVO> visualVOS, String courseName, String orCaseCourse) {
+
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(courseName);
+        matcher.find();
+        String catalog = matcher.group(0);
+        String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
+
+
+        // get the AU info by querying the AU table in the database
+        NobesTimetableAu au = iTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()
+                .eq(NobesTimetableAu::getCourseName, subject + " " + catalog), false);
+
+        HashMap<String, String> AUCount = new HashMap<>();
+
+        if (au != null) {
+            AUCount = Stream.of(
+                            new AbstractMap.SimpleEntry<>("Math", au.getMath()),
+                            new AbstractMap.SimpleEntry<>("Natural Sciences", au.getNaturalSciences()),
+                            new AbstractMap.SimpleEntry<>("Complimentary Studies", au.getComplimentaryStudies()),
+                            new AbstractMap.SimpleEntry<>("Engineering Design", au.getEngineeringDesign()),
+                            new AbstractMap.SimpleEntry<>("Engineering Science", au.getEngineeringScience()),
+                            new AbstractMap.SimpleEntry<>("Other", au.getOther()),
+                            new AbstractMap.SimpleEntry<>("Specific Engineering Design", au.getEDsp()),
+                            new AbstractMap.SimpleEntry<>("Specific Engineering Science", au.getESsp())
+                    )
+                    .filter(entry -> !entry.getValue().equals("0"))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, HashMap::new));
+        }
+
+        // get the grad attributes
+        ArrayList<String> gradAtts = getGradAtts(courseName);
+
+        NobesVisualizerCourse course = iNobesVisualizerCourseService.getOne(new LambdaQueryWrapper<NobesVisualizerCourse>()
+                .eq(NobesVisualizerCourse::getCatalog, catalog)
+                .eq(NobesVisualizerCourse::getSubject, subject), false);
+
+        String courseDescription1 = course.getCourseDescription();
+
+        // get the prerequisites and corequisites
+        ArrayList<String> preReqs = reqService.pullPreReqs(courseDescription1);
+        ArrayList<String> coReqs = reqService.pullCoReqs(courseDescription1);
+
+        // get the description
+        String description;
+
+        if (!course.isNull()) {
+            String progUnits = course.getProgUnits();
+            String calcFeeIndex = course.getCalcFeeIndex();
+            String duration = course.getDuration();
+            String alphaHours = course.getAlphaHours();
+            String courseDescription = course.getCourseDescription();
+
+            description = "★ " + progUnits.replaceAll("[^0-9]", "") + " (fi " + calcFeeIndex + ") " + "(" + duration + ", " + alphaHours + ") " + courseDescription;
+
+        } else {
+            description = course.getCourseDescription();
+        }
+
+        // get the course group
+        ArrayList<String> courseGroup = getCourseGroup(courseName, AUCount);
+
+        VisualVO visualVO = new VisualVO();
+        visualVO.setCourseName(courseName)
+                .setTitle(courseName + " - " + course.getTitle())
+                .setDescription(description)
+                .setAUCount(AUCount)
+                .setAttribute(gradAtts)
+                .setPreReqs(preReqs)
+                .setCoReqs(coReqs)
+                .setGroup(courseGroup)
+                .setOrCase(orCaseCourse);
+
+        visualVOS.add(visualVO);
     }
 
 }

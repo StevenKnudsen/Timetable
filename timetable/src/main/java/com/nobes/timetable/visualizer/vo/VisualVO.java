@@ -31,4 +31,6 @@ public class VisualVO {
     private ArrayList<String> coReqs;
 
     private ArrayList<String> group;
+
+    private String orCase;
 }

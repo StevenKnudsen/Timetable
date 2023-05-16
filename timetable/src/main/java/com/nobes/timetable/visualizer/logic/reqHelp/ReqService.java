@@ -3,12 +3,10 @@ package com.nobes.timetable.visualizer.logic.reqHelp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService.countNums;
-import static com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService.pullDept;
 
 /**
  * translated from the old visualizer code
@@ -16,6 +14,10 @@ import static com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService.pull
 @Service
 @Slf4j
 public class ReqService {
+
+    @Resource
+    ParseHelpService parseHelpService;
+
     public ArrayList<String> pullPreReqs(String description) {
         description = description.replace("-requisite", "requisite");
         int singleStart = description.indexOf("Prerequisite: ");
@@ -60,9 +62,8 @@ public class ReqService {
         }
 
         // Assumes you have a process method that takes a String and returns an ArrayList<String>
-        ArrayList<String> prereqs = (ArrayList<String>) process(preStr);
 
-        return prereqs;
+        return (ArrayList<String>) process(preStr);
     }
 
     public ArrayList<String> pullCoReqs(String description) {
@@ -130,7 +131,7 @@ public class ReqService {
                 continue;
             }
 
-            int numcounter = countNums(reqlist.get(i));
+            int numcounter = parseHelpService.countNums(reqlist.get(i));
 
             if (reqlist.get(i).length() >= 5 && (reqlist.get(i).substring(0, 5).equalsIgnoreCase("both "))) {
                 // Two courses are required, remove both and pull the department name if required
@@ -138,7 +139,7 @@ public class ReqService {
 
                 if (numcounter == 3 && reqlist.get(i + 1).length() == 3) {
                     // Only a course number is present, must pull the department name
-                    String dept = pullDept(reqlist, i);
+                    String dept = parseHelpService.pullDept(reqlist, i);
                     if (dept == null) {
                         throw new AssertionError("Error pulling department name from previous list reqlist.get(i), check pullDept()");
                     }
@@ -160,10 +161,10 @@ public class ReqService {
 
                 if (j < reqlist.size()) {
                     while (!reqlist.get(j).contains("or") && !reqlist.get(j).contains("Or")) {
-                        int nums = countNums(reqlist.get(j));
+                        int nums = parseHelpService.countNums(reqlist.get(j));
 
                         if (nums == 3 && reqlist.get(j).length() == 3) {
-                            String dept = pullDept(reqlist, j - 1);
+                            String dept = parseHelpService.pullDept(reqlist, j - 1);
                             reqlist.set(j, dept + " " + reqlist.get(j));
                         }
                         reqlist.set(i, reqlist.get(i) + " or " + reqlist.get(j));
@@ -176,23 +177,23 @@ public class ReqService {
 
                     if (j < reqlist.size()) {
                         if (reqlist.get(j).contains("or") || reqlist.get(j).contains("Or")) {
-                            int nums = countNums(reqlist.get(j));
+                            int nums = parseHelpService.countNums(reqlist.get(j));
 
                             if (nums == 3 && reqlist.get(j).length() == 6) {
-                                String dept = pullDept(reqlist, j - 1);
+                                String dept = parseHelpService.pullDept(reqlist, j - 1);
                                 reqlist.set(j, "or " + dept + reqlist.get(j).substring(2));
                             }
 
-                            if (reqlist.get(j).substring(0, 8) == "or both ") {
+                            if (reqlist.get(j).startsWith("or both ")) {
                                 if (reqlist.get(j).length() == 11) {
-                                    String dept = pullDept(reqlist, j - 1);
+                                    String dept = parseHelpService.pullDept(reqlist, j - 1);
                                     reqlist.set(j, "or both " + dept + reqlist.get(j).substring(7));
                                 }
 
-                                int nums1 = countNums(reqlist.get(j + 1));
+                                int nums1 = parseHelpService.countNums(reqlist.get(j + 1));
 
                                 if (nums1 == 3 && reqlist.get(j + 1).length() == 3) {
-                                    String dept = pullDept(reqlist, j);
+                                    String dept = parseHelpService.pullDept(reqlist, j);
                                     reqlist.set(j + 1, "and " + dept.substring(8) + " " + reqlist.get(j + 1));
                                     reqlist.set(j, reqlist.get(j) + " " + reqlist.get(j + 1));  // combine current and next
                                     reqlist.remove(j + 1);
@@ -217,7 +218,7 @@ public class ReqService {
                 reqlist.remove(i);
             } else if (numcounter == 3 && reqlist.get(i).length() == 3) {
 
-                String dept = pullDept(reqlist, i - 1);
+                String dept = parseHelpService.pullDept(reqlist, i - 1);
                 reqlist.set(i, dept + " " + reqlist.get(i));  // just add the department name to current item
                 i += 1;
             } else {
@@ -230,7 +231,7 @@ public class ReqService {
     }
 
     public ArrayList<String> preprocess(ArrayList<String> reqlist) {
-        ArrayList<String> newlist = new ArrayList<String>();
+        ArrayList<String> newlist = new ArrayList<>();
 
         int i = 0;
         while (i < reqlist.size()) {
@@ -282,7 +283,7 @@ public class ReqService {
         int j = 0;
         while (j < reqlist.size()) {
             // Must have at least 3 numbers to be the name of a course
-            int numcounter = countNums(reqlist.get(j));
+            int numcounter = parseHelpService.countNums(reqlist.get(j));
             if (numcounter < 3) {
                 j += 1;
                 continue;
