@@ -3,6 +3,7 @@ package com.nobes.timetable.visualizer.controller;
 
 import com.nobes.timetable.core.entity.ResultBody;
 import com.nobes.timetable.visualizer.dto.VisualDTO;
+import com.nobes.timetable.visualizer.logic.ReqMapService;
 import com.nobes.timetable.visualizer.logic.VisualService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,9 @@ public class VisualController {
     @Resource
     VisualService visualService;
 
+    @Resource
+    ReqMapService reqMapService;
+
     /**
      *  Send a post request to this api to retrieve a HashMap which key are terms and values are all the courses information
      *  in that term
@@ -39,5 +43,19 @@ public class VisualController {
     @PostMapping("/getInfo")
     public ResultBody getInfo(@RequestBody @Validated VisualDTO visualDTO) throws Exception {
         return ResultBody.success(visualService.getCourses(visualDTO));
+    }
+
+    /**
+     *  Send a post request to this api to retrieve a HashMap which contains requisites information
+     *  for given program and plan
+     *
+     *  @param visualDTO the visualDTO containing selected programName and planName
+     *  @return a ResultBody (a public return type) containing the retrieved Req Map
+     *  @throws Exception if an error occurs while retrieving the requisites
+     *
+     * */
+    @PostMapping("/getReqMap")
+    public ResultBody getReqMap(@RequestBody @Validated VisualDTO visualDTO) throws Exception {
+        return ResultBody.success(reqMapService.getCourseReqMap(visualDTO));
     }
 }

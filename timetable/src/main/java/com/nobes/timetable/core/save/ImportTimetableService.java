@@ -736,7 +736,7 @@ public class ImportTimetableService {
             Sheet plan = workbook.getSheetAt(i);
             String planName = plan.getSheetName();
             for (int j = 0; j < plan.getRow(0).getLastCellNum(); j++) {
-                for (int z = 1; z < plan.getLastRowNum(); z++) {
+                for (int z = 1; z <= plan.getLastRowNum(); z++) {
                     if (plan.getRow(z).getCell(j) != null) {
                         NobesTimetableSequence nobesTimetableSequence = new NobesTimetableSequence();
                         nobesTimetableSequence.setPlanName(planName)

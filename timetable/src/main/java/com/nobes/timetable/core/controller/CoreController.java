@@ -65,7 +65,7 @@ public class CoreController {
     @GetMapping("/sequenceImport")
     public void sequenceImport() throws Exception {
 
-        importTimetableService.sequenceImport(new File("src/main/java/com/nobes/timetable/PESequencing.xls"));
+        importTimetableService.sequenceImport(new File("src/main/java/com/nobes/timetable/CHESequencing.xls"));
 
     }
 
