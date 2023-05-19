@@ -159,16 +159,18 @@ public class VisualService {
 
                     visualVOS.add(visualVO);
 
-                } else if (courseName.contains("or")) {
+                } else if (courseName.toLowerCase().contains("or")) {
 
                     // TODO: if there is an or, currently just take the first one, to be fixed
-                    String[] ors = courseName.split("or");
+                    String[] ors = courseName.toLowerCase().split("or");
 
-                    for (int i = 0; i < ors.length; i++) {
-                        if (i + 1 < ors.length) {
-                            getCourseInfo(visualVOS, ors[i].trim(), removeParentheses(ors[i + 1].trim()));
+                    List<String> collect = Arrays.stream(ors).map(String::toUpperCase).collect(Collectors.toList());
+
+                    for (int i = 0; i < collect.size(); i++) {
+                        if (i + 1 < collect.size()) {
+                            getCourseInfo(visualVOS, collect.get(i).trim(), removeParentheses(collect.get(i + 1).trim()));
                         } else {
-                            getCourseInfo(visualVOS, ors[i].trim(), null);
+                            getCourseInfo(visualVOS, collect.get(i).trim(), null);
                         }
                     }
 
@@ -230,12 +232,9 @@ public class VisualService {
                 .eq(NobesVisualizerCourse::getCatalog, catalog)
                 .eq(NobesVisualizerCourse::getSubject, subject), false);
 
-        String courseDescription1 = course.getCourseDescription();
-
-        // get the prerequisites and corequisites
-        ArrayList<String> preReqs = reqService.pullPreReqs(courseDescription1);
-        ArrayList<String> coReqs = reqService.pullCoReqs(courseDescription1);
-
+        if (course == null) {
+            log.info(courseName);
+        }
         // get the description
         String description;
 
@@ -261,8 +260,6 @@ public class VisualService {
                 .setDescription(description)
                 .setAUCount(AUCount)
                 .setAttribute(gradAtts)
-                .setPreReqs(preReqs)
-                .setCoReqs(coReqs)
                 .setGroup(courseGroup)
                 .setOrCase(orCaseCourse);
 

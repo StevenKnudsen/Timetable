@@ -26,10 +26,6 @@ public class VisualVO {
 
     private HashMap<String, String> AUCount;
 
-    private ArrayList<String> preReqs;
-
-    private ArrayList<String> coReqs;
-
     private ArrayList<String> group;
 
     private String orCase;

@@ -5,7 +5,6 @@ import com.nobes.timetable.calendar.domain.NobesTimetableSequence;
 import com.nobes.timetable.calendar.service.INobesTimetableSequenceService;
 import com.nobes.timetable.visualizer.domain.NobesVisualizerCourse;
 import com.nobes.timetable.visualizer.dto.VisualDTO;
-import com.nobes.timetable.visualizer.logic.reqHelp.ParseHelpService;
 import com.nobes.timetable.visualizer.logic.reqHelp.ReqService;
 import com.nobes.timetable.visualizer.service.INobesVisualizerCourseService;
 import com.nobes.timetable.visualizer.vo.ReqVO;
@@ -67,7 +66,6 @@ public class ReqMapService {
                     getReq(reqMap, course);
                 }
             }
-
         }
 
         Set<String> reqKeySet = reqMap.keySet();
