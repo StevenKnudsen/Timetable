@@ -10,6 +10,7 @@ import com.nobes.timetable.visualizer.service.INobesVisualizerCourseService;
 import com.nobes.timetable.visualizer.service.INobesVisualizerCoursegroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,11 +37,19 @@ public class ImportVisualizerService {
     @Resource
     INobesVisualizerCoursegroupService visualizerCoursegroupService;
 
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Value("${spring.datasource.url}")
+    private String url;
+
     /**
      * Save all the info in the input Excel files into nobes_visualizer_course table in the database
      * print the success info in console if import succeed
      * @param file the Excel file to be saved
-     * @throws IOException if any error occurs during the retrieval process.
      */
     public void courseImport(File file) {
 
@@ -76,14 +85,8 @@ public class ImportVisualizerService {
      * This method truncates the "nobes_visualizer_course" table in the mydatabase database using the MySQL JDBC driver.
      * It uses a JDBC connection to the database and executes a TRUNCATE TABLE statement to clear all data from the table.
      * The database connection information, including the URL, username, and password, is hardcoded and needs to be changed when using this method in another database.
-     * @throws SQLException if there is any error in the SQL statement execution.
      */
     public void truncate() {
-
-        // TODO: change the database connection information when using it in another database
-        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "Jxp_51515";
 
         try {
             Connection conn = DriverManager.getConnection(url, username, password);
@@ -107,7 +110,6 @@ public class ImportVisualizerService {
      * Save all the info in the input Excel files into nobes_visualizer_coursegroup table in the database
      * print the success info in console if import succeed
      * @param file the Excel file to be saved
-     * @throws IOException if any error occurs during the retrieval process.
      */
     public void courseGroupImport(File file) throws Exception {
         ExcelReader reader = ExcelUtil.getReader(file);

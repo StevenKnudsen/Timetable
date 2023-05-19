@@ -8,6 +8,7 @@ import com.nobes.timetable.calendar.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,6 +48,15 @@ public class ImportTimetableService {
     @Resource
     INobesTimetableSequenceService iNobesTimetableSequenceService;
 
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Value("${spring.datasource.url}")
+    private String url;
+
     /**
      * Save all the info in the input Excel files into nobes_timetable_table in the database
      * These are the raw data that will be used in the import function for other tables
@@ -56,16 +66,10 @@ public class ImportTimetableService {
      */
     public void excelImport(File file) throws Exception {
 
-        // TODO: change the database connection info once use another database
-        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "Jxp_51515";
-
         Connection connection = DriverManager.getConnection(url, username, password);
 
         Workbook workbook = WorkbookFactory.create(file);
         Sheet sheet = workbook.getSheetAt(0);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         int lastRowNum = sheet.getLastRowNum();
 
         for (int i = 2; i < lastRowNum; i++) {
@@ -433,10 +437,6 @@ public class ImportTimetableService {
      * */
     public void truncate() throws Exception {
 
-        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "Jxp_51515";
-
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_table";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -450,11 +450,9 @@ public class ImportTimetableService {
     /**
      * Grab info from the raw table and save courses info (that is unique) into nobes_timetable_course table
      * print the success info in console if import succeed
-     * @throws Exception if any error occurs during the saving process.
      */
-    public void courseImport() throws SQLException {
+    public void courseImport() {
 
-        // TODO: change the database connection info once change the database
         HashSet<String> courseNames = new HashSet<>();
 
         Integer courseId = 1;
@@ -666,11 +664,6 @@ public class ImportTimetableService {
      * truncate all the tables in the database by JDBC
      */
     public void truncateOther() {
-
-        // TODO: change the database connection info once change the database
-        String url = "jdbc:mysql://35.183.28.169:3306/mydatabase?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false";
-        String username = "root";
-        String password = "Jxp_51515";
 
         try {
             Connection conn = DriverManager.getConnection(url, username, password);
