@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -34,7 +35,7 @@ public class CourseGroupService {
         }
 
         // initialize an empty list
-        ArrayList<String> courseGroup = new ArrayList<>(Collections.nCopies(9, "0"));
+        ArrayList<String> courseGroup = new ArrayList<>(Collections.nCopies(21, "0"));
 
         if (courseName.toUpperCase().contains("COMP")) {
             courseGroup.set(5, "1");
@@ -46,60 +47,99 @@ public class CourseGroupService {
             courseGroup.set(4, "1");
         } else {
             // for general cases, first query the course group table to get the course group
-            NobesVisualizerCoursegroup group = iNobesVisualizerCoursegroupService.getOne(new LambdaQueryWrapper<NobesVisualizerCoursegroup>()
-                    .eq(NobesVisualizerCoursegroup::getCourseName, courseName.toUpperCase()), false);
+            List<NobesVisualizerCoursegroup> coursegroups = iNobesVisualizerCoursegroupService.list(new LambdaQueryWrapper<NobesVisualizerCoursegroup>()
+                    .eq(NobesVisualizerCoursegroup::getCourseName, courseName.toUpperCase()));
 
-            if (group != null) {
-                switch (group.getCourseGroup()) {
-                    case "Math":
-                        courseGroup.set(0, "1");
-                        break;
-                    case "Natural Sciences":
-                        courseGroup.set(1, "1");
-                        break;
-                    case "Engineering Sciences":
-                        courseGroup.set(2, "1");
-                        break;
-                    case "Engineering Design":
-                        courseGroup.set(3, "1");
-                        break;
-                    case "Engineering Profession":
-                        courseGroup.set(4, "1");
-                        break;
-                    case "Other":
-                        courseGroup.set(8, "1");
-                        break;
-                }
+            for (NobesVisualizerCoursegroup group : coursegroups) {
 
-                // if the course has accreditation in other fields, add that to its course group,
-                // i.e., like Course A's AUCount: { "Math" : 44.7 }, then Course A is in Group: "Math"
-                AUCount.forEach((key, value) -> {
-                    switch (key) {
+                if (group != null) {
+                    switch (group.getCourseGroup()) {
                         case "Math":
                             courseGroup.set(0, "1");
                             break;
                         case "Natural Sciences":
                             courseGroup.set(1, "1");
                             break;
-                        case "Complimentary Studies":
+                        case "Engineering Sciences":
                             courseGroup.set(2, "1");
                             break;
                         case "Engineering Design":
                             courseGroup.set(3, "1");
                             break;
-                        case "Engineering Science":
+                        case "Engineering Profession":
                             courseGroup.set(4, "1");
                             break;
                         case "Other":
-                            courseGroup.set(5, "1");
+                            courseGroup.set(8, "1");
+                            break;
+                        case "Computing Science":
+                            courseGroup.set(9, "1");
+                            break;
+                        case "Mechatronics":
+                            courseGroup.set(10, "1");
+                            break;
+                        case "SEMINARS":
+                            courseGroup.set(11, "1");
+                            break;
+                        case "LABS":
+                            courseGroup.set(12, "1");
+                            break;
+                        case "CODING":
+                            courseGroup.set(13, "1");
+                            break;
+                        case "CAD":
+                            courseGroup.set(14, "1");
+                            break;
+                        case "Group Work":
+                            courseGroup.set(15, "1");
+                            break;
+                        case "Solid Mechanics":
+                            courseGroup.set(16, "1");
+                            break;
+                        case "Thermo Fluids":
+                            courseGroup.set(17, "1");
+                            break;
+                        case "Electrical":
+                            courseGroup.set(18, "1");
+                            break;
+                        case "Control":
+                            courseGroup.set(19, "1");
+                            break;
+                        case "Management":
+                            courseGroup.set(20, "1");
                             break;
                         default:
                             break;
                     }
-                });
-            } else {
-                log.info("AU for " + courseName + " is missing");
+                }
             }
+
+            // if the course has accreditation in other fields, add that to its course group,
+            // i.e., like Course A's AUCount: { "Math" : 44.7 }, then Course A is in Group: "Math"
+            AUCount.forEach((key, value) -> {
+                switch (key) {
+                    case "Math":
+                        courseGroup.set(0, "1");
+                        break;
+                    case "Natural Sciences":
+                        courseGroup.set(1, "1");
+                        break;
+                    case "Complimentary Studies":
+                        courseGroup.set(2, "1");
+                        break;
+                    case "Engineering Design":
+                        courseGroup.set(3, "1");
+                        break;
+                    case "Engineering Science":
+                        courseGroup.set(4, "1");
+                        break;
+                    case "Other":
+                        courseGroup.set(5, "1");
+                        break;
+                    default:
+                        break;
+                }
+            });
         }
 
         return courseGroup;

@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class represents the Plan Service responsible for retrieving the plans and corresponding terms in a plan of a program
@@ -41,9 +38,9 @@ public class PlanService {
      * @return a HashMap containing the plans and corresponding terms of the given program.
      * @throws IOException if any error occurs during the retrieval process.
      */
-    public HashMap<String, ArrayList> getPlan(ProgramDTO programDTO) throws IOException {
+    public LinkedHashMap<String, ArrayList> getPlan(ProgramDTO programDTO) throws IOException {
 
-        HashMap<String, ArrayList> programMap = new HashMap<>();
+        LinkedHashMap<String, ArrayList> programMap = new LinkedHashMap<>();
         String program_Name = programDTO.getProgramName();
 
         // query the database where programName = program_Name and return a list store all the information

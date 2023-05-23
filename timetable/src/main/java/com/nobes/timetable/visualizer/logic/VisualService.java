@@ -42,9 +42,6 @@ public class VisualService {
     @Resource
     INobesTimetableAuService iTimetableAuService;
 
-    @Resource
-    ReqService reqService;
-
     @Autowired
     GradAttService gradAttService;
 
@@ -161,7 +158,6 @@ public class VisualService {
 
                 } else if (courseName.toLowerCase().contains("or")) {
 
-                    // TODO: if there is an or, currently just take the first one, to be fixed
                     String[] ors = courseName.toLowerCase().split("or");
 
                     List<String> collect = Arrays.stream(ors).map(String::toUpperCase).collect(Collectors.toList());
@@ -200,6 +196,11 @@ public class VisualService {
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(courseName);
         matcher.find();
+
+        if (matcher.group(0) == null) {
+            log.info(courseName);
+        }
+
         String catalog = matcher.group(0);
         String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
 
@@ -253,6 +254,8 @@ public class VisualService {
 
         // get the course group
         ArrayList<String> courseGroup = courseGroupService.getCourseGroup(courseName, AUCount);
+
+
 
         VisualVO visualVO = new VisualVO();
         visualVO.setCourseName(courseName)

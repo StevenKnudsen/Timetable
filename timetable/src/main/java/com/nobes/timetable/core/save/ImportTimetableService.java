@@ -721,28 +721,40 @@ public class ImportTimetableService {
             case "MATE":
                 programName = "Materials Engineering";
                 break;
+            case "Mechatronics":
+                programName = "Mechatronics Engineering";
+                break;
             default:
                 programName = null;
         }
 
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            Sheet plan = workbook.getSheetAt(i);
-            String planName = plan.getSheetName();
-            for (int j = 0; j < plan.getRow(0).getLastCellNum(); j++) {
-                for (int z = 1; z <= plan.getLastRowNum(); z++) {
-                    if (plan.getRow(z).getCell(j) != null) {
-                        NobesTimetableSequence nobesTimetableSequence = new NobesTimetableSequence();
-                        nobesTimetableSequence.setPlanName(planName)
-                                .setTermName(plan.getRow(0).getCell(j).getStringCellValue())
-                                .setCourseName(plan.getRow(z).getCell(j).getStringCellValue())
-                                .setProgramName(programName);
-                        iNobesTimetableSequenceService.save(nobesTimetableSequence);
+        if (iNobesTimetableSequenceService.getOne(new LambdaQueryWrapper<NobesTimetableSequence>()
+                .eq(NobesTimetableSequence::getProgramName, programName), false) == null) {
+
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                Sheet plan = workbook.getSheetAt(i);
+                String sheetName = plan.getSheetName();
+
+                String planName = sheetName.contains("(") ? sheetName.substring(0, sheetName.indexOf("(") - 1) + sheetName.substring(sheetName.indexOf(")") + 1) : sheetName;
+
+                for (int j = 0; j < plan.getRow(0).getLastCellNum(); j++) {
+                    for (int z = 1; z <= plan.getLastRowNum(); z++) {
+                        if (plan.getRow(z).getCell(j) != null) {
+                            NobesTimetableSequence nobesTimetableSequence = new NobesTimetableSequence();
+                            nobesTimetableSequence.setPlanName(planName)
+                                    .setTermName(plan.getRow(0).getCell(j).getStringCellValue())
+                                    .setCourseName(plan.getRow(z).getCell(j).getStringCellValue())
+                                    .setProgramName(programName);
+                            iNobesTimetableSequenceService.save(nobesTimetableSequence);
+                        }
                     }
                 }
             }
-        }
 
-        log.info("sequence import success");
+            log.info("sequence import success");
+        } else {
+            log.info(programName + "has already been imported");
+        }
     }
 
 }

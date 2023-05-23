@@ -1,10 +1,11 @@
 package com.nobes.timetable.core.controller;
 
+import com.nobes.timetable.core.dto.VisualizerImportDTO;
 import com.nobes.timetable.core.save.ImportTimetableService;
 import com.nobes.timetable.core.save.ImportVisualizerService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.File;
  * */
 @RestController
 @RequestMapping("/nobes/timetable/core")
+@Slf4j
 public class CoreController {
 
     @Resource
@@ -62,10 +64,11 @@ public class CoreController {
     /**
      * api for importing the sequence table into database
      * */
-    @GetMapping("/sequenceImport")
-    public void sequenceImport() throws Exception {
+    @PostMapping("/sequenceImport")
+    public void sequenceImport(@RequestBody @Validated VisualizerImportDTO visualizerImportDTO) throws Exception {
 
-        importTimetableService.sequenceImport(new File("src/main/java/com/nobes/timetable/CHESequencing.xls"));
+        importTimetableService.sequenceImport(new File(visualizerImportDTO.getFilePath()));
+        log.info(visualizerImportDTO.getFilePath());
 
     }
 
@@ -73,12 +76,14 @@ public class CoreController {
      *  Import for visualizer project
      *  @throws Exception if an error occurs
      * */
-    @GetMapping("/visualizerImport")
-    public void visualizerImport() throws Exception {
+    @PostMapping("/visualizerImport")
+    public void visualizerImport(@RequestBody @Validated VisualizerImportDTO visualizerImportDTO) throws Exception {
 
-        importVisualizerService.courseImport(new File("src/main/java/com/nobes/timetable/Courses.xls"));
+//        importVisualizerService.courseImport(new File(visualizerImportDTO.getFilePath()));
+//        log.info(visualizerImportDTO.getFilePath());
 
-        importVisualizerService.courseGroupImport(new File("src/main/java/com/nobes/timetable/CourseCategories.xlsx"));
+        importVisualizerService.courseGroupImport(new File(visualizerImportDTO.getFilePath()));
+        log.info(visualizerImportDTO.getFilePath());
     }
 
     /**
