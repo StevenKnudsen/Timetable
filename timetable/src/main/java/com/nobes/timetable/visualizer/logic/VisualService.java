@@ -105,9 +105,9 @@ public class VisualService {
                                                     "")
                             .setAttribute(gradAtts)
                             .setGroup(courseGroup)
-                            .setDescription(courseName.equals("COMP") ? "A Complementary Studies of the student's choice. Please consult the calendar for more information." :
-                                    courseName.equals("ITS") ? "A ITS Electives of the student's choice. Please consult the calendar for more information." :
-                                            courseName.equals("PROG") ? "A program/technical elective of the student's choice. Please consult the calendar for more information." :
+                            .setDescription(courseName.contains("COMP") ? "A Complementary Studies of the student's choice. Please consult the calendar for more information." :
+                                    courseName.contains("ITS") ? "A ITS Electives of the student's choice. Please consult the calendar for more information." :
+                                            courseName.contains("PROG") ? "A program/technical elective of the student's choice. Please consult the calendar for more information." :
                                                     "");
 
                     visualVOS.add(visualVO);

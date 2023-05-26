@@ -52,65 +52,43 @@ public class CourseGroupService {
 
             for (NobesVisualizerCoursegroup group : coursegroups) {
 
-                if (group != null) {
-                    switch (group.getCourseGroup()) {
-                        case "Math":
-                            courseGroup.set(0, "1");
-                            break;
-                        case "Natural Sciences":
-                            courseGroup.set(1, "1");
-                            break;
-                        case "Engineering Sciences":
-                            courseGroup.set(2, "1");
-                            break;
-                        case "Engineering Design":
-                            courseGroup.set(3, "1");
-                            break;
-                        case "Engineering Profession":
-                            courseGroup.set(4, "1");
-                            break;
-                        case "Other":
-                            courseGroup.set(8, "1");
-                            break;
-                        case "Computing Science":
-                            courseGroup.set(9, "1");
-                            break;
-                        case "Mechatronics":
-                            courseGroup.set(10, "1");
-                            break;
-                        case "SEMINARS":
-                            courseGroup.set(11, "1");
-                            break;
-                        case "LABS":
-                            courseGroup.set(12, "1");
-                            break;
-                        case "CODING":
-                            courseGroup.set(13, "1");
-                            break;
-                        case "CAD":
-                            courseGroup.set(14, "1");
-                            break;
-                        case "Group Work":
-                            courseGroup.set(15, "1");
-                            break;
-                        case "Solid Mechanics":
-                            courseGroup.set(16, "1");
-                            break;
-                        case "Thermo Fluids":
-                            courseGroup.set(17, "1");
-                            break;
-                        case "Electrical":
-                            courseGroup.set(18, "1");
-                            break;
-                        case "Control":
-                            courseGroup.set(19, "1");
-                            break;
-                        case "Management":
-                            courseGroup.set(20, "1");
-                            break;
-                        default:
-                            break;
-                    }
+                String groups = group.getCourseGroup();
+                if (groups.contains("Math")) {
+                    courseGroup.set(0, "1");
+                } else if (groups.contains("Natural Sciences")) {
+                    courseGroup.set(1, "1");
+                } else if (groups.contains("Engineering Sciences")) {
+                    courseGroup.set(2, "1");
+                } else if (groups.contains("Engineering Design")) {
+                    courseGroup.set(3, "1");
+                } else if (groups.contains("Engineering Profession")) {
+                    courseGroup.set(4, "1");
+                } else if (groups.contains("Other")) {
+                    courseGroup.set(8, "1");
+                } else if (groups.contains("Computing Science")) {
+                    courseGroup.set(9, "1");
+                } else if (groups.contains("Mechatronics")) {
+                    courseGroup.set(10, "1");
+                } else if (groups.contains("SEMINARS")) {
+                    courseGroup.set(11, "1");
+                } else if (groups.contains("LABS")) {
+                    courseGroup.set(12, "1");
+                } else if (groups.contains("CODING")) {
+                    courseGroup.set(13, "1");
+                } else if (groups.contains("CAD")) {
+                    courseGroup.set(14, "1");
+                } else if (groups.contains("Group Work")) {
+                    courseGroup.set(15, "1");
+                } else if (groups.contains("Solid Mechanics")) {
+                    courseGroup.set(16, "1");
+                } else if (groups.contains("Thermo Fluids")) {
+                    courseGroup.set(17, "1");
+                } else if (groups.contains("Electrical")) {
+                    courseGroup.set(18, "1");
+                } else if (groups.contains("Control")) {
+                    courseGroup.set(19, "1");
+                } else if (groups.contains("Management")) {
+                    courseGroup.set(20, "1");
                 }
             }
 
