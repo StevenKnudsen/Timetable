@@ -18,4 +18,9 @@ public class ReqVO {
     private ArrayList<String> preRe;
 
     private ArrayList<String> coRe;
+
+    private ArrayList<String> postReq;
+
+    private ArrayList<String> cocoRe;
+
 }

@@ -90,23 +90,23 @@ public class ReqMapService {
 
             for (String re : preRes) {
                 if (reqMap.containsKey(re)) {
-                    ArrayList<String> coRe = reqMap.get(re).getCoRe();
-                    boolean match = coRe.stream().anyMatch(str -> str.contains(key));
+                    ArrayList<String> postRe = reqMap.get(re).getPostReq();
+                    boolean match = postRe.stream().anyMatch(str -> str.contains(key));
 
                     if (!match) {
-                        coRe.add(key);
+                        postRe.add(key);
                     }
                 }
             }
 
             for (String re : coRes) {
                 if (reqMap.containsKey(re)) {
-                    ArrayList<String> preRe = reqMap.get(re).getPreRe();
+                    ArrayList<String> cocoRe = reqMap.get(re).getCocoRe();
 
-                    boolean match = preRe.stream().anyMatch(str -> str.contains(key));
+                    boolean match = cocoRe.stream().anyMatch(str -> str.contains(key));
 
                     if (!match) {
-                        preRe.add(key);
+                        cocoRe.add(key);
                     }
                 }
             }
@@ -136,7 +136,7 @@ public class ReqMapService {
         ArrayList<String> preRequisites = getOrCaseReq(preReqs);
         ArrayList<String> coRequisites = getOrCaseReq(coReqs);
 
-        ReqVO reqVO = new ReqVO().setPreRe(preRequisites).setCoRe(coRequisites);
+        ReqVO reqVO = new ReqVO().setPreRe(preRequisites).setCoRe(coRequisites).setPostReq(new ArrayList<>()).setCocoRe(new ArrayList<>());
 
         reqMap.put(course, reqVO);
     }
