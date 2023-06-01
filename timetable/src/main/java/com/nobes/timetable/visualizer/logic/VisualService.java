@@ -172,7 +172,7 @@ public class VisualService {
 
                 } else {
                     // in general cases
-                    getCourseInfo(visualVOS, courseName, null);
+                    getCourseInfo(visualVOS, courseName.trim(), null);
                 }
             }
 

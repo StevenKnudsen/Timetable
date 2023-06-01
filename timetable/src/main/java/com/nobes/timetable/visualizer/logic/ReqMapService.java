@@ -43,7 +43,7 @@ public class ReqMapService {
                 .eq(NobesTimetableSequence::getProgramName, programName)
                 .eq(NobesTimetableSequence::getPlanName, planName));
 
-        List<String> courseNameList = sequenceList.stream().map(NobesTimetableSequence::getCourseName).collect(Collectors.toList());
+        List<String> courseNameList = sequenceList.stream().map(NobesTimetableSequence::getCourseName).map(String::trim).collect(Collectors.toList());
 
         for (String course : courseNameList) {
 
@@ -58,8 +58,8 @@ public class ReqMapService {
                             .map(String::trim)
                             .toArray(String[]::new);
 
-                    for (int i = 0; i < orCases.length; i++) {
-                        getReq(reqMap, orCases[i]);
+                    for (String orCase : orCases) {
+                        getReq(reqMap, orCase);
                     }
 
                 } else {
@@ -89,6 +89,8 @@ public class ReqMapService {
             coRes = (ArrayList<String>) coRes.stream().distinct().collect(Collectors.toList());
 
             for (String re : preRes) {
+                boolean b = reqMap.containsKey(re);
+
                 if (reqMap.containsKey(re)) {
                     ArrayList<String> postRe = reqMap.get(re).getPostReq();
                     boolean match = postRe.stream().anyMatch(str -> str.contains(key));

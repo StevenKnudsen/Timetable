@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static freemarker.template.utility.NumberUtil.isNaN;
+
 /**
  * translated from the old visualizer code
  * */
@@ -54,7 +56,9 @@ public class ReqService {
 
         if (preStr.toLowerCase().contains("corequisite")) {
             int index = preStr.toLowerCase().indexOf("corequisite");
-            preStr = preStr.substring(index + "corequisite".length()).trim();
+            if (!(preStr.substring(0, index)).matches(".*\\d+.*")) {
+                preStr = preStr.substring(index + "corequisite".length()).trim();
+            }
 
             if (preStr.startsWith(":")) {
                 preStr = preStr.substring(1).trim();
