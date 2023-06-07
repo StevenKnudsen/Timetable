@@ -119,7 +119,7 @@ public class CourseGroupService {
                 }
             });
         }
-        
+
 
         return courseGroup;
     }
