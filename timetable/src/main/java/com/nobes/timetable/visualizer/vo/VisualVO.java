@@ -29,4 +29,6 @@ public class VisualVO {
     private ArrayList<String> group;
 
     private String orCase;
+
+    private String courseGroup;
 }

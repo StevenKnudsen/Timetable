@@ -7,7 +7,6 @@ import com.nobes.timetable.calendar.service.INobesTimetableAuService;
 import com.nobes.timetable.calendar.service.INobesTimetableSequenceService;
 import com.nobes.timetable.visualizer.domain.NobesVisualizerCourse;
 import com.nobes.timetable.visualizer.dto.VisualDTO;
-import com.nobes.timetable.visualizer.logic.reqHelp.ReqService;
 import com.nobes.timetable.visualizer.logic.util.CourseGroupService;
 import com.nobes.timetable.visualizer.logic.util.GradAttService;
 import com.nobes.timetable.visualizer.service.INobesVisualizerCourseService;
@@ -158,9 +157,20 @@ public class VisualService {
 
                 } else if (courseName.toLowerCase().contains("or")) {
 
+                    String orCaseGroup;
+                    if (courseName.contains("(")) {
+                        orCaseGroup = courseName.substring(courseName.indexOf("("), courseName.indexOf(")") + 1);
+                    } else {
+                        orCaseGroup = null;
+                    }
+
                     String[] ors = courseName.toLowerCase().split("or");
 
-                    List<String> collect = Arrays.stream(ors).map(String::toUpperCase).collect(Collectors.toList());
+                    List<String> collect = Arrays.stream(ors).map(String::toUpperCase)
+                            .map(String::trim)
+                            .map(course -> course.replaceAll("\\(.*\\)", ""))
+                            .map(course -> course + orCaseGroup)
+                            .collect(Collectors.toList());
 
                     for (int i = 0; i < collect.size(); i++) {
                         if (i + 1 < collect.size()) {
@@ -255,7 +265,13 @@ public class VisualService {
         // get the course group
         ArrayList<String> courseGroup = courseGroupService.getCourseGroup(courseName, AUCount);
 
-
+        // if the program is Mechanical Engineering, get the course group (A or B)
+        String group;
+        if (courseName.contains("(")) {
+            group = courseName.substring(courseName.indexOf("(") + 1, courseName.indexOf(")"));
+        } else {
+            group = null;
+        }
 
         VisualVO visualVO = new VisualVO();
         visualVO.setCourseName(courseName)
@@ -264,7 +280,8 @@ public class VisualService {
                 .setAUCount(AUCount)
                 .setAttribute(gradAtts)
                 .setGroup(courseGroup)
-                .setOrCase(orCaseCourse);
+                .setOrCase(orCaseCourse)
+                .setCourseGroup(group);
 
         visualVOS.add(visualVO);
     }
