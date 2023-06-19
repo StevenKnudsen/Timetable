@@ -161,7 +161,7 @@ public class VisualService {
                     if (courseName.contains("(")) {
                         orCaseGroup = courseName.substring(courseName.indexOf("("), courseName.indexOf(")") + 1);
                     } else {
-                        orCaseGroup = null;
+                        orCaseGroup = "";
                     }
 
                     String[] ors = courseName.toLowerCase().split("or");
