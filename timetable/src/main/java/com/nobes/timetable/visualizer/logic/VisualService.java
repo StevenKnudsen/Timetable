@@ -174,7 +174,7 @@ public class VisualService {
 
                     for (int i = 0; i < collect.size(); i++) {
                         if (i + 1 < collect.size()) {
-                            getCourseInfo(visualVOS, collect.get(i).trim(), removeParentheses(collect.get(i + 1).trim()));
+                            getCourseInfo(visualVOS, collect.get(i).trim(), collect.get(i + 1));
                         } else {
                             getCourseInfo(visualVOS, collect.get(i).trim(), null);
                         }
@@ -267,11 +267,16 @@ public class VisualService {
 
         // if the program is Mechanical Engineering, get the course group (A or B)
         String group;
+        String courseGroupComplete;
+
         if (courseName.contains("(")) {
             group = courseName.substring(courseName.indexOf("(") + 1, courseName.indexOf(")"));
+            courseGroupComplete = courseName.substring(courseName.indexOf("("), courseName.indexOf(")") + 1);
         } else {
             group = null;
+            courseGroupComplete = null;
         }
+
 
         VisualVO visualVO = new VisualVO();
         visualVO.setCourseName(courseName)
@@ -285,20 +290,5 @@ public class VisualService {
 
         visualVOS.add(visualVO);
     }
-
-    public String removeParentheses(String str) {
-        while (true) {
-            int startIndex = str.indexOf('(');
-            int endIndex = str.indexOf(')');
-
-            if (startIndex == -1 || endIndex == -1 || endIndex < startIndex) {
-                break;
-            }
-
-            str = str.substring(0, startIndex) + str.substring(endIndex + 1);
-        }
-
-        return str;
-    }
-
+    
 }
