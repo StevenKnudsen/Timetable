@@ -2,143 +2,108 @@ package com.nobes.timetable.calendar.logic;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nobes.timetable.calendar.domain.NobesTimetableCourse;
-import com.nobes.timetable.calendar.dto.ProgDTO;
+import com.nobes.timetable.calendar.domain.NobesTimetableSequence;
+import com.nobes.timetable.calendar.dto.AllCourseDTO;
+import com.nobes.timetable.calendar.dto.IndivCourseDTO;
+import com.nobes.timetable.calendar.factory.strategies.lab.LabsService;
+import com.nobes.timetable.calendar.factory.strategies.lecture.LecturesService;
+import com.nobes.timetable.calendar.factory.strategies.seminar.SemsService;
 import com.nobes.timetable.calendar.service.INobesTimetableCourseService;
-import com.nobes.timetable.calendar.vo.CourseVO;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.stereotype.Component;
+import com.nobes.timetable.calendar.service.INobesTimetableSequenceService;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
- *
- * unused service
- *
- * */
-@Component
+ * Service for querying information for a course
+ */
+@Service
 public class CourseService {
 
     @Resource
-    INobesTimetableCourseService courseSelectService;
+    INobesTimetableSequenceService tableSequenceService;
 
     @Resource
-    MainService cService;
+    LecturesService indivLectureService;
 
-    public ArrayList getCourses(ProgDTO progDTO) throws Exception {
+    @Resource
+    LabsService indivLabsService;
 
-        String program_Name = progDTO.getProgramName();
-        String term_Name = progDTO.getTermName();
-        String planName = progDTO.getPlanName();
+    @Resource
+    SemsService indivSeminarService;
 
-        String head;
+    public ArrayList<String> getAllCourse(AllCourseDTO allCourseDTO) throws Exception {
+        String program = allCourseDTO.getProgram();
 
-        switch (program_Name) {
-            case "Computer Engineering":
-                head = "CE";
-                break;
-            case "Mechanical Engineering":
-                head = "MECE";
-                break;
-            case "Electrial Engineering":
-                head = "EE";
-                break;
-            case "Petroleum Engineering":
-                head = "PE";
-                break;
-            case "Civil Engineering":
-                head = "CIVIL";
-                break;
-            case "Engineering Physics":
-                head = "ENGP";
-                break;
-            case "Mining Engineering":
-                head = "MINI";
-                break;
-            case "Chemical Engineering":
-                head = "CHE";
-                break;
-            case "Materials Engineering":
-                head = "MATE";
-                break;
-            default:
-                head = null;
-        }
+        List<String> coursesList = tableSequenceService.list(new LambdaQueryWrapper<NobesTimetableSequence>()
+                        .eq(NobesTimetableSequence::getProgramName, program))
+                .stream()
+                .map(NobesTimetableSequence::getCourseName)
+                .collect(Collectors.toList());
 
-        String excelName = head + "Sequencing.xls";
-        String path = "src/main/java/com/nobes/timetable/" + excelName;
-        File file = new File(path);
-        Workbook workbook = WorkbookFactory.create(file);
+        ArrayList<String> intermediate = new ArrayList<>();
+        for (int i = 0; i < coursesList.size(); i++) {
+            String course = coursesList.get(i);
 
-        ArrayList<String> names = new ArrayList<>();
-        ArrayList<CourseVO> cours = new ArrayList<>();
-
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            if (workbook.getSheetAt(i).getSheetName().equalsIgnoreCase(planName)) {
-                Sheet sheet = workbook.getSheetAt(i);
-
-                int lastColNum = sheet.getRow(0).getLastCellNum();
-                int lastRowNum = sheet.getLastRowNum();
-
-                for (int j = 0; j < lastColNum; j++) {
-                    if (sheet.getRow(0).getCell(j).getStringCellValue().equals(term_Name)) {
-                        for (int z = 1; z < lastRowNum + 1; z++) {
-                            String course = sheet.getRow(z).getCell(j).getStringCellValue();
-                            names.add(course);
-                        }
-                    }
-                }
+            if (course.contains("(")) {
+                course = course.replaceAll("\\(.*?\\)", "");
             }
-        }
 
-        for (int i = 0; i < names.size(); i++) {
-
-            String courseName = names.get(i);
-
-            if (courseName.equals("COMP")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("COMP");
-                courseVO.setCourseName("COMP");
-                cours.add(courseVO);
-            } else if (courseName.equals("ITS")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("ITS");
-                courseVO.setCourseName("ITS");
-                cours.add(courseVO);
-            } else if (courseName.equals("PROG 1")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 1");
-                courseVO.setCourseName("PROG 1");
-                cours.add(courseVO);
-            } else if (courseName.equals("PROG 2")) {
-                CourseVO courseVO = new CourseVO();
-                courseVO.setSubject("PROG 2");
-                courseVO.setCourseName("PROG 2");
-                cours.add(courseVO);
+            if (course.contains("or")) {
+                String[] courses = course.split("or");
+                for (String orCaseCourse : courses) {
+                    String trimOrCaseCourse = orCaseCourse.trim();
+                    intermediate.add(trimOrCaseCourse);
+                }
             } else {
-                Pattern pattern = Pattern.compile("\\d+");
-                Matcher matcher = pattern.matcher(courseName);
-                matcher.find();
-                String catalog = matcher.group(0);
-                String subject = courseName.substring(0, courseName.indexOf(catalog.charAt(0)) - 1);
-
-                NobesTimetableCourse course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>().eq(NobesTimetableCourse::getCatalog, catalog).eq(NobesTimetableCourse::getSubject, subject), false);
-                // find course information
-                if (course != null) {
-                    CourseVO courseVOObj = cService.getCourseObj(course);
-                    cours.add(courseVOObj);
+                if (!(course.contains("ITS") || course.contains("PROG") || course.contains("COMP"))) {
+                    intermediate.add(course);
                 }
             }
         }
 
-        return cours;
+        TreeSet<String> courseTreeSet = new TreeSet<>(intermediate);
+
+        return new ArrayList<>(courseTreeSet);
+    }
+
+    public HashMap getIndivCourseLecsInfo(IndivCourseDTO indivCourseDTO) throws Exception {
+        String courseName = indivCourseDTO.getCourseName();
+        String term = indivCourseDTO.getTerm();
+        String season = term.split(" ")[0];
+
+        ArrayList<String> courseList = new ArrayList<>();
+        courseList.add(courseName);
+
+        HashMap map = indivLectureService.handle(courseList, season);
+        return map;
+    }
+
+    public HashMap getIndivCourseLabsInfo(IndivCourseDTO indivCourseDTO) throws Exception {
+        String courseName = indivCourseDTO.getCourseName();
+        String term = indivCourseDTO.getTerm();
+        String season = term.split(" ")[0];
+
+        ArrayList<String> courseList = new ArrayList<>();
+        courseList.add(courseName);
+
+        HashMap map = indivLabsService.handle(courseList, season);
+        return map;
+    }
+
+    public HashMap getIndivCourseSemsInfo(IndivCourseDTO indivCourseDTO) throws Exception {
+        String courseName = indivCourseDTO.getCourseName();
+        String term = indivCourseDTO.getTerm();
+        String season = term.split(" ")[0];
+
+        ArrayList<String> courseList = new ArrayList<>();
+        courseList.add(courseName);
+
+        HashMap map = indivSeminarService.handle(courseList, season);
+        return map;
     }
 
 }

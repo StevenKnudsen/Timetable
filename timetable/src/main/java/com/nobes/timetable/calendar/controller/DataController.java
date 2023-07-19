@@ -1,10 +1,13 @@
 package com.nobes.timetable.calendar.controller;
 
-import com.nobes.timetable.core.entity.ResultBody;
+import com.nobes.timetable.calendar.dto.AllCourseDTO;
+import com.nobes.timetable.calendar.dto.IndivCourseDTO;
 import com.nobes.timetable.calendar.dto.ProgDTO;
 import com.nobes.timetable.calendar.dto.ProgramDTO;
+import com.nobes.timetable.calendar.logic.CourseService;
 import com.nobes.timetable.calendar.logic.PlanService;
 import com.nobes.timetable.calendar.logic.SequenceService;
+import com.nobes.timetable.core.entity.ResultBody;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +36,8 @@ public class DataController {
     @Resource
     SequenceService sequenceService;
 
+    @Resource
+    CourseService courseService;
 
 
     /**
@@ -89,4 +94,55 @@ public class DataController {
         return ResultBody.success(sequenceService.handle(progDTO));
     }
 
+    /**
+     *  Retrieves a HashMap containing seminar information
+     *
+     *  @param allCourseDTO the allCourseDTO containing selected program
+     *  @return a ResultBody (a public return type) containing all the courses in this program
+     *  @throws Exception if an error occurs
+     *
+     * */
+    @PostMapping("/getAllCourses")
+    public ResultBody getAllCourses(@RequestBody @Validated AllCourseDTO allCourseDTO) throws Exception {
+        return ResultBody.success(courseService.getAllCourse(allCourseDTO));
+    }
+
+    /**
+     *  Retrieves a HashMap containing seminar information
+     *
+     *  @param indivCourseDTO the indivCourseDTO containing course name and term
+     *  @return a ResultBody (a public return type) containing the lecture information about this course in a specific term
+     *  @throws Exception if an error occurs
+     *
+     * */
+    @PostMapping("/getIndividualCourseLecsInfo")
+    public ResultBody getIndividualCourseLecsInfo(@RequestBody @Validated IndivCourseDTO indivCourseDTO) throws Exception {
+        return ResultBody.success(courseService.getIndivCourseLecsInfo(indivCourseDTO));
+    }
+
+    /**
+     *  Retrieves a HashMap containing seminar information
+     *
+     *  @param indivCourseDTO the indivCourseDTO containing course name and term
+     *  @return a ResultBody (a public return type) containing the lab information about this course in a specific term
+     *  @throws Exception if an error occurs
+     *
+     * */
+    @PostMapping("/getIndividualCourseLabsInfo")
+    public ResultBody getIndividualCourseLabsInfo(@RequestBody @Validated IndivCourseDTO indivCourseDTO) throws Exception {
+        return ResultBody.success(courseService.getIndivCourseLabsInfo(indivCourseDTO));
+    }
+
+    /**
+     *  Retrieves a HashMap containing seminar information
+     *
+     *  @param indivCourseDTO the indivCourseDTO containing course name and term
+     *  @return a ResultBody (a public return type) containing the seminar information about this course in a specific term
+     *  @throws Exception if an error occurs
+     *
+     * */
+    @PostMapping("/getIndividualCourseSemsInfo")
+    public ResultBody getIndividualCourseSemsInfo(@RequestBody @Validated IndivCourseDTO indivCourseDTO) throws Exception {
+        return ResultBody.success(courseService.getIndivCourseSemsInfo(indivCourseDTO));
+    }
 }

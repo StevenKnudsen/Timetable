@@ -94,6 +94,15 @@ public class VisualService {
                     // if the course is a selective or elective course
                     ArrayList gradAtts = gradAttService.getGradAtts(courseName);
 
+                    // if the program is Mechanical Engineering, get the course group (A or B)
+                    String group;
+
+                    if (courseName.contains("(")) {
+                        group = courseName.substring(courseName.indexOf("(") + 1, courseName.indexOf(")"));
+                    } else {
+                        group = null;
+                    }
+
                     ArrayList<String> courseGroup = courseGroupService.getCourseGroup(courseName, null);
 
                     VisualVO visualVO = new VisualVO();
@@ -104,6 +113,7 @@ public class VisualService {
                                                     "")
                             .setAttribute(gradAtts)
                             .setGroup(courseGroup)
+                            .setCourseGroup(group)
                             .setDescription(courseName.contains("COMP") ? "A Complementary Studies of the student's choice. Please consult the calendar for more information." :
                                     courseName.contains("ITS") ? "A ITS Electives of the student's choice. Please consult the calendar for more information." :
                                             courseName.contains("PROG") ? "A program/technical elective of the student's choice. Please consult the calendar for more information." :
@@ -267,14 +277,11 @@ public class VisualService {
 
         // if the program is Mechanical Engineering, get the course group (A or B)
         String group;
-        String courseGroupComplete;
 
         if (courseName.contains("(")) {
             group = courseName.substring(courseName.indexOf("(") + 1, courseName.indexOf(")"));
-            courseGroupComplete = courseName.substring(courseName.indexOf("("), courseName.indexOf(")") + 1);
         } else {
             group = null;
-            courseGroupComplete = null;
         }
 
 
@@ -290,5 +297,4 @@ public class VisualService {
 
         visualVOS.add(visualVO);
     }
-    
 }
