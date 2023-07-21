@@ -33,11 +33,11 @@ public class CoreController {
      *  @throws Exception if an error occurs
      * */
     @GetMapping("/timetableImport")
-    public void timetableImport() throws Exception {
+    public void timetableImport(@RequestBody @Validated VisualizerImportDTO visualizerImportDTO) throws Exception {
 
         importTimetableService.truncate();
 
-        importTimetableService.excelImport(new File("src/main/java/com/nobes/timetable/t8.xls"));
+        importTimetableService.excelImport(new File(visualizerImportDTO.getFilePath()));
 
         importTimetableService.courseImport();
 
@@ -78,12 +78,7 @@ public class CoreController {
      * */
     @PostMapping("/visualizerImport")
     public void visualizerImport(@RequestBody @Validated VisualizerImportDTO visualizerImportDTO) throws Exception {
-
-//        importVisualizerService.courseImport(new File(visualizerImportDTO.getFilePath()));
-//        log.info(visualizerImportDTO.getFilePath());
-
         importVisualizerService.courseGroupImport(new File(visualizerImportDTO.getFilePath()));
-        log.info(visualizerImportDTO.getFilePath());
     }
 
     /**

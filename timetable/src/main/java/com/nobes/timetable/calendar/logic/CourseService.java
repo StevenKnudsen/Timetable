@@ -60,7 +60,7 @@ public class CourseService {
                 }
             } else {
                 if (!(course.contains("ITS") || course.contains("PROG") || course.contains("COMP"))) {
-                    intermediate.add(course);
+                    intermediate.add(course.trim());
                 }
             }
         }
