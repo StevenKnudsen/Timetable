@@ -2,27 +2,31 @@ package com.nobes.timetable.core.save;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.nobes.timetable.core.utils.OrikaUtils;
 import com.nobes.timetable.calendar.domain.*;
 import com.nobes.timetable.calendar.service.*;
+import com.nobes.timetable.core.utils.OrikaUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 
 
 /**
  * The Timetable import Service to save the information in Excel files that will be used for the timetable project into database
- * */
+ */
 @Service
 @Slf4j
 public class ImportTimetableService {
@@ -48,6 +52,9 @@ public class ImportTimetableService {
     @Resource
     INobesTimetableSequenceService iNobesTimetableSequenceService;
 
+    @Resource
+    INobesTimetableAuService iNobesTimetableAuService;
+
     @Value("${spring.datasource.username}")
     private String username;
 
@@ -61,6 +68,7 @@ public class ImportTimetableService {
      * Save all the info in the input Excel files into nobes_timetable_table in the database
      * These are the raw data that will be used in the import function for other tables
      * print the success info in console if import succeed
+     *
      * @param file the Excel file to be saved
      * @throws IOException if any error occurs during the retrieval process.
      */
@@ -436,7 +444,6 @@ public class ImportTimetableService {
      * truncate nobes_timetable_table
      * */
     public void truncate() throws Exception {
-
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_table";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -444,7 +451,6 @@ public class ImportTimetableService {
 
         preparedStatement.close();
         connection.close();
-
     }
 
     /**
@@ -514,6 +520,7 @@ public class ImportTimetableService {
     /**
      * Grab info from the raw table which component is a lecture and save into the lecture table in the database
      * print the success info in console if import succeed
+     *
      * @throws Exception if any error occurs during the saving process.
      */
     public void lecImport() throws SQLException {
@@ -565,6 +572,7 @@ public class ImportTimetableService {
     /**
      * Grab info from the raw table which component is a lab and save them into the lab table in the database
      * print the success info in console if import succeed
+     *
      * @throws Exception if any error occurs during the saving process.
      */
     public void labImport() throws SQLException {
@@ -614,6 +622,7 @@ public class ImportTimetableService {
     /**
      * Grab info from the raw table which component is a sem and save them into the sem table in the database
      * print the success info in console if import succeed
+     *
      * @throws Exception if any error occurs during the saving process.
      */
     public void semImport() throws SQLException {
@@ -685,40 +694,40 @@ public class ImportTimetableService {
 
     /**
      * save the info from sequence Excel files into sequence table in the database
+     *
      * @throws Exception if any error occurs during the saving process.
      */
-    public void sequenceImport(File file) throws Exception {
+    public String sequenceImport(File file, String program) throws Exception {
         Workbook workbook = WorkbookFactory.create(file);
-        String fileName = file.getName();
-        String progSuffix = fileName.substring(0, fileName.indexOf("Sequencing"));
+
         String programName;
 
-        switch (progSuffix) {
-            case "CE":
+        switch (program) {
+            case "Computer":
                 programName = "Computer Engineering";
                 break;
             case "MECE":
                 programName = "Mechanical Engineering";
                 break;
-            case "EE":
+            case "Electrical":
                 programName = "Electrical Engineering";
                 break;
-            case "PE":
+            case "Petroleum":
                 programName = "Petroleum Engineering";
                 break;
             case "Civil":
                 programName = "Civil Engineering";
                 break;
-            case "ENGP":
+            case "Engg Physics":
                 programName = "Engineering Physics";
                 break;
-            case "MINI":
+            case "Mining":
                 programName = "Mining Engineering";
                 break;
-            case "CHE":
+            case "Chemical":
                 programName = "Chemical Engineering";
                 break;
-            case "MATE":
+            case "Materials":
                 programName = "Materials Engineering";
                 break;
             case "Mechatronics":
@@ -751,10 +760,62 @@ public class ImportTimetableService {
                 }
             }
 
-            log.info("sequence import success");
+            return programName + " sequence upload succeed";
         } else {
-            log.info(programName + "has already been imported");
+            return programName + " sequence has already been uploaded";
         }
     }
 
+    /**
+     * save the accreditation units info into the database
+     *
+     * @throws Exception if any error occurs during the saving process.
+     */
+    public String auImport(MultipartFile file) throws Exception {
+        try {
+            InputStream inputStream = file.getInputStream();
+            jxl.Workbook workbook = jxl.Workbook.getWorkbook(inputStream);
+            jxl.Sheet sheet = workbook.getSheet(4);
+
+            for (int i = 4; i < sheet.getRows(); i++) {
+                NobesTimetableAu au = new NobesTimetableAu();
+                au.setCourseName(getCell(sheet.getCell(0, i)))
+                        .setTitle(getCell(sheet.getCell(1, i)))
+                        .setFaculty(getCell(sheet.getCell(2, i)))
+                        .setCatagory(getCell(sheet.getCell(3, i)))
+                        .setCredit(getCell(sheet.getCell(4, i)))
+                        .setWeight(getCell(sheet.getCell(5, i)))
+                        .setLec(getCell(sheet.getCell(15, i)))
+                        .setLab(getCell(sheet.getCell(16, i)))
+                        .setSem(getCell(sheet.getCell(17, i)))
+                        .setTotalAu(getCell(sheet.getCell(18, i)))
+                        .setMath(getCell(sheet.getCell(26, i)))
+                        .setNaturalSciences(getCell(sheet.getCell(27, i)))
+                        .setComplimentaryStudies(getCell(sheet.getCell(28, i)))
+                        .setEngineeringScience(getCell(sheet.getCell(29, i)))
+                        .setEngineeringDesign(getCell(sheet.getCell(30, i)))
+                        .setOther(getCell(sheet.getCell(31, i)))
+                        .setESsp(getCell(sheet.getCell(32, i)))
+                        .setEDsp(getCell(sheet.getCell(33, i)))
+                        .setPEng(getCell(sheet.getCell(34, i)));
+
+                iNobesTimetableAuService.save(au);
+            }
+
+            log.info("Au Update Complete");
+            workbook.close();
+            inputStream.close();
+
+            return "AU updates complete";
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            e.printStackTrace();
+            return "Can not load the file";
+        }
+
+    }
+
+    private String getCell(jxl.Cell cell) {
+        return cell.getContents();
+    }
 }

@@ -70,8 +70,4 @@ public class NobesTimetableAu implements Serializable {
     @TableField("PEng")
     private String PEng;
 
-    @TableField("EIT")
-    private String eit;
-
-
 }

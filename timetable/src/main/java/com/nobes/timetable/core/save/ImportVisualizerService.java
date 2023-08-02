@@ -82,7 +82,7 @@ public class ImportVisualizerService {
                         .setDuration(getCell(rows.get(i).get(13)))
                         .setAlphaHours(getCell(rows.get(i).get(14)))
                         .setCourseDescription(getCell(rows.get(i).get(15)));
-                log.info(getCell(rows.get(i).get(3)) + " " + getCell(rows.get(i).get(4)));
+
                 visualizerCourseService.save(nobesVisualizerCourse);
             }
         }
