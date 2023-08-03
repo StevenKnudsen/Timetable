@@ -46,32 +46,21 @@ public class CoreController {
 
                 importTimetableService.excelImport(convFile);
 
-                importTimetableService.courseImport();
+                Boolean isDuplicate = importTimetableService.courseImport();
 
-                importTimetableService.lecImport();
-
-                importTimetableService.labImport();
-
-                importTimetableService.semImport();
+                if (!isDuplicate) {
+                    importTimetableService.lecImport();
+                    importTimetableService.labImport();
+                    importTimetableService.semImport();
+                }
             }
 
             return ResultBody.success("Scheduler Courses upload succeed");
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResultBody.success("Can not find the correct file information");
         }
-    }
-
-    /**
-     * truncate tables for the timetable project
-     */
-    @GetMapping("/truncateTimetable")
-    public void truncateTimetable() throws Exception {
-
-        importTimetableService.truncateOther();
-
-        importTimetableService.truncate();
-
     }
 
     /**
@@ -142,13 +131,48 @@ public class CoreController {
     }
 
     /**
+     * truncate tables for the timetable course info
+     */
+    @GetMapping("/truncateTimetable")
+    public void truncateTimetable() throws Exception {
+
+        importTimetableService.truncateOther();
+
+        importTimetableService.truncate();
+
+    }
+
+    /**
+     * truncate tables for the timetable course info
+     */
+    @GetMapping("/truncateAU")
+    public void truncateAU() throws Exception {
+        importTimetableService.truncateAU();
+    }
+
+    /**
+     * truncate tables for the timetable course info
+     */
+    @GetMapping("/truncateSequence")
+    public void truncateSequence() throws Exception {
+        importTimetableService.truncateSequence();
+    }
+
+
+    /**
      * Truncate tables for visualizer
      */
     @GetMapping("/truncateVisualizer")
     public void truncateVisualizer() throws Exception {
-
         importVisualizerService.truncate();
+    }
 
+    /**
+     * Truncate tables for visualizer
+     */
+    @GetMapping("/truncateCourseGroup")
+    public void truncateCourseGroup() throws Exception {
+        importVisualizerService.truncateCourseGroup();
     }
 
 }

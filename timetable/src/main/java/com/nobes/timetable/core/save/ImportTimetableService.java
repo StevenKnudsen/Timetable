@@ -457,13 +457,15 @@ public class ImportTimetableService {
      * Grab info from the raw table and save courses info (that is unique) into nobes_timetable_course table
      * print the success info in console if import succeed
      */
-    public void courseImport() {
+    public Boolean courseImport() {
 
         HashSet<String> courseNames = new HashSet<>();
 
         Integer courseId = 1;
 
         List<NobesTimetableTable> courses = TableService.list(null);
+
+        HashSet<String> duplicateCourseNames = new HashSet<>();
 
         for (NobesTimetableTable course : courses) {
             String subject = course.getSubject();
@@ -474,46 +476,53 @@ public class ImportTimetableService {
             String courseTitle = subject + " " + catalog;
             String courseName = courseTitle + term;
 
-
             // only save one course once, make sure every course in the course table has unique course name and course id.
             if (!courseNames.contains(courseName)) {
-                String approvedHrs = course.getApprovedHrs();
 
-                NobesTimetableCourse newcourse = OrikaUtils.convert(course, NobesTimetableCourse.class);
-                String newCatalog = newcourse.getCatalog().trim();
-                newcourse.setCatalog(newCatalog);
+                // if not import the same excel twice
+                if (iCourseService.list(new LambdaQueryWrapper<NobesTimetableCourse>()
+                        .eq(NobesTimetableCourse::getSubject, subject)
+                        .eq(NobesTimetableCourse::getCatalog, catalog.trim())
+                        .eq(NobesTimetableCourse::getAppliedTerm, term)).size() == 0) {
+                    String approvedHrs = course.getApprovedHrs();
 
-                // set the proper approved hours
-                if (approvedHrs.contains("-")) {
-                    String[] hrs = approvedHrs.split("-");
-                    newcourse.setLec(hrs[0]);
-                    newcourse.setSem(hrs[1]);
+                    NobesTimetableCourse newcourse = OrikaUtils.convert(course, NobesTimetableCourse.class);
+                    String newCatalog = newcourse.getCatalog().trim();
+                    newcourse.setCatalog(newCatalog);
 
-                    if (hrs.length > 2) {
-                        newcourse.setLab(hrs[2]);
+                    // set the proper approved hours
+                    if (approvedHrs.contains("-")) {
+                        String[] hrs = approvedHrs.split("-");
+                        newcourse.setLec(hrs[0]);
+                        newcourse.setSem(hrs[1]);
+
+                        if (hrs.length > 2) {
+                            newcourse.setLab(hrs[2]);
+                        } else {
+                            newcourse.setLab("0");
+                        }
+
                     } else {
-                        newcourse.setLab("0");
+                        newcourse.setLec(approvedHrs);
+                        newcourse.setLab(approvedHrs);
+                        newcourse.setSem(approvedHrs);
                     }
 
-                } else {
-                    newcourse.setLec(approvedHrs);
-                    newcourse.setLab(approvedHrs);
-                    newcourse.setSem(approvedHrs);
-                }
+                    courseNames.add(courseName);
+                    newcourse.setAppliedTerm(term);
+                    newcourse.setDescription(description);
+                    newcourse.setAccreditUnits(maxUnits);
+                    newcourse.setCourseId(courseId);
+                    iCourseService.save(newcourse);
 
-                courseNames.add(courseName);
-                newcourse.setAppliedTerm(term);
-                newcourse.setDescription(description);
-                newcourse.setAccreditUnits(maxUnits);
-                newcourse.setCourseId(courseId);
-                iCourseService.save(newcourse);
-
-                courseId += 1;
+                    courseId += 1;
+                } else duplicateCourseNames.add(courseName);
             }
-
         }
 
         log.info("Course Update Complete");
+
+        return duplicateCourseNames.size() > 10;
 
     }
 
@@ -683,7 +692,7 @@ public class ImportTimetableService {
             for (String table : tables) {
                 String sql = "TRUNCATE TABLE " + table;
                 stmt.executeUpdate(sql);
-                System.out.println("Table " + table + " truncated successfully.");
+                log.info("Table " + table + " truncated successfully.");
             }
 
             conn.close();
@@ -818,4 +827,32 @@ public class ImportTimetableService {
     private String getCell(jxl.Cell cell) {
         return cell.getContents();
     }
+
+    /*
+     * truncate nobes_timetable_au
+     * */
+    public void truncateAU() throws Exception {
+        Connection connection = DriverManager.getConnection(url, username, password);
+        String sql = "TRUNCATE TABLE nobes_timetable_au";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        preparedStatement.close();
+        connection.close();
+    }
+
+    /*
+     * truncate nobes_timetable_sequence
+     * */
+    public void truncateSequence() throws Exception {
+        Connection connection = DriverManager.getConnection(url, username, password);
+        String sql = "TRUNCATE TABLE nobes_timetable_sequence";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.executeUpdate();
+
+        preparedStatement.close();
+        connection.close();
+    }
+
+
 }

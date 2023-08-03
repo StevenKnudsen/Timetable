@@ -17,12 +17,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -102,6 +100,26 @@ public class ImportVisualizerService {
             Statement stmt = conn.createStatement();
 
             String[] tables = {"nobes_visualizer_course"};
+
+            for (String table : tables) {
+                String sql = "TRUNCATE TABLE " + table;
+                stmt.executeUpdate(sql);
+                System.out.println("Table " + table + " truncated successfully.");
+            }
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void truncateCourseGroup() {
+
+        try {
+            Connection conn = DriverManager.getConnection(url, username, password);
+            Statement stmt = conn.createStatement();
+
+            String[] tables = {"nobes_visualizer_coursegroup"};
 
             for (String table : tables) {
                 String sql = "TRUNCATE TABLE " + table;
