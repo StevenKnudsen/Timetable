@@ -94,30 +94,30 @@ public class CourseGroupService {
 
             // if the course has accreditation in other fields, add that to its course group,
             // i.e., like Course A's AUCount: { "Math" : 44.7 }, then Course A is in Group: "Math"
-            AUCount.forEach((key, value) -> {
-                switch (key) {
-                    case "Math":
-                        courseGroup.set(0, "1");
-                        break;
-                    case "Natural Sciences":
-                        courseGroup.set(1, "1");
-                        break;
-                    case "Complimentary Studies":
-                        courseGroup.set(2, "1");
-                        break;
-                    case "Engineering Design":
-                        courseGroup.set(3, "1");
-                        break;
-                    case "Engineering Science":
-                        courseGroup.set(4, "1");
-                        break;
-                    case "Other":
-                        courseGroup.set(5, "1");
-                        break;
-                    default:
-                        break;
-                }
-            });
+//            AUCount.forEach((key, value) -> {
+//                switch (key) {
+//                    case "Math":
+//                        courseGroup.set(0, "1");
+//                        break;
+//                    case "Natural Sciences":
+//                        courseGroup.set(1, "1");
+//                        break;
+//                    case "Complimentary Studies":
+//                        courseGroup.set(2, "1");
+//                        break;
+//                    case "Engineering Design":
+//                        courseGroup.set(3, "1");
+//                        break;
+//                    case "Engineering Science":
+//                        courseGroup.set(4, "1");
+//                        break;
+//                    case "Other":
+//                        courseGroup.set(5, "1");
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            });
         }
 
 

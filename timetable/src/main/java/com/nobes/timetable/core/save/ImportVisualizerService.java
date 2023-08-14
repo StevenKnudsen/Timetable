@@ -150,7 +150,7 @@ public class ImportVisualizerService {
         for (int i = 2; i < lastRowNum; i++) {
             for (int j = 0; j < lastCellNum; j++) {
                 if (sheet.getRow(i).getCell(j) != null) {
-                    String group = sheet.getRow(0).getCell(j).getStringCellValue();
+                    String group = sheet.getRow(0).getCell(j).getStringCellValue().replace("(main)", "");
                     String color = new DataFormatter().formatCellValue(sheet.getRow(1).getCell(j));
                     String courseName = sheet.getRow(i).getCell(j).getStringCellValue();
 

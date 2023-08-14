@@ -21,4 +21,12 @@ public class ResultBody {
         rb.setObj(data);
         return rb;
     }
+
+    public static ResultBody error(Object data) {
+        ResultBody rb = new ResultBody();
+        rb.setRespCode(ExceptionEnum.ERROR.getResultCode());
+        rb.setRespDesc(ExceptionEnum.ERROR.getResultMsg());
+        rb.setObj(data);
+        return rb;
+    }
 }

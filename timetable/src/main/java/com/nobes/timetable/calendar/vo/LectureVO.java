@@ -26,7 +26,7 @@ public class LectureVO {
 
     private String courseTitle;
 
-    private ArrayList times;
+    private ArrayList<String> times;
 
     private String InstructorName;
 

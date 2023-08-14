@@ -29,7 +29,7 @@ public class SemVO {
 
     private String Place;
 
-    private ArrayList times;
+    private ArrayList<String> times;
 
     private String InstructorName;
 

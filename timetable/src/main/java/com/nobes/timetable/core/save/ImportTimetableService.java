@@ -73,7 +73,6 @@ public class ImportTimetableService {
      * @throws IOException if any error occurs during the retrieval process.
      */
     public void excelImport(File file) throws Exception {
-
         Connection connection = DriverManager.getConnection(url, username, password);
 
         Workbook workbook = WorkbookFactory.create(file);
@@ -761,14 +760,14 @@ public class ImportTimetableService {
                             NobesTimetableSequence nobesTimetableSequence = new NobesTimetableSequence();
                             nobesTimetableSequence.setPlanName(planName)
                                     .setTermName(plan.getRow(0).getCell(j).getStringCellValue())
-                                    .setCourseName(plan.getRow(z).getCell(j).getStringCellValue())
+                                    .setCourseName(plan.getRow(z).getCell(j).getStringCellValue().trim())
                                     .setProgramName(programName);
                             iNobesTimetableSequenceService.save(nobesTimetableSequence);
                         }
                     }
                 }
             }
-
+            log.info("sequence import succeed");
             return programName + " sequence upload succeed";
         } else {
             return programName + " sequence has already been uploaded";

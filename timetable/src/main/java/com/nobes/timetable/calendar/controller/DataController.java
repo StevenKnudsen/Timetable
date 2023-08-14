@@ -1,10 +1,8 @@
 package com.nobes.timetable.calendar.controller;
 
-import com.nobes.timetable.calendar.dto.AllCourseDTO;
-import com.nobes.timetable.calendar.dto.IndivCourseDTO;
-import com.nobes.timetable.calendar.dto.ProgDTO;
-import com.nobes.timetable.calendar.dto.ProgramDTO;
+import com.nobes.timetable.calendar.dto.*;
 import com.nobes.timetable.calendar.logic.CourseService;
+import com.nobes.timetable.calendar.logic.OptimizeService;
 import com.nobes.timetable.calendar.logic.PlanService;
 import com.nobes.timetable.calendar.logic.SequenceService;
 import com.nobes.timetable.core.entity.ResultBody;
@@ -38,6 +36,9 @@ public class DataController {
 
     @Resource
     CourseService courseService;
+
+    @Resource
+    OptimizeService optimizeService;
 
 
     /**
@@ -144,5 +145,18 @@ public class DataController {
     @PostMapping("/getIndividualCourseSemsInfo")
     public ResultBody getIndividualCourseSemsInfo(@RequestBody @Validated IndivCourseDTO indivCourseDTO) throws Exception {
         return ResultBody.success(courseService.getIndivCourseSemsInfo(indivCourseDTO));
+    }
+
+    /**
+     *  Retrieves a 2D Array represeting the updated timetable
+     *
+     *  @param optimizedTableDTO the optimizedTableDTO
+     *  @return a ResultBody (a public return type) containing the updated timetable
+     *  @throws Exception if an error occurs
+     *
+     * */
+    @PostMapping("/optimizeTimeTable")
+    public ResultBody optimizeTimeTable(@RequestBody @Validated OptimizedTableDTO optimizedTableDTO) throws Exception {
+        return optimizeService.optimizedGenerate(optimizedTableDTO);
     }
 }

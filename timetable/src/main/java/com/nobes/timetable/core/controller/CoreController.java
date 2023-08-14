@@ -59,7 +59,7 @@ public class CoreController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResultBody.success("Can not find the correct file information");
+            return ResultBody.success(e.getMessage());
         }
     }
 

@@ -4,7 +4,7 @@ import com.nobes.timetable.core.exception.BaseErrorInfoInterface;
 
 public enum ExceptionEnum implements BaseErrorInfoInterface {
     SUCCESS(200, "success"),
-    NOT_FOUND(404, "not found");
+    ERROR(404, "error");
 
     private final Integer respCode;
     /**
