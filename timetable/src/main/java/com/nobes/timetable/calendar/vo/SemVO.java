@@ -31,6 +31,8 @@ public class SemVO {
 
     private ArrayList<String> times;
 
+    private String description;
+
     private String InstructorName;
 
     private String InstructorEmail;

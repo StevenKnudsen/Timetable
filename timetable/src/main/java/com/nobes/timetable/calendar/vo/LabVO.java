@@ -30,6 +30,8 @@ public class LabVO {
 
     private ArrayList<String> times;
 
+    private String description;
+
     private String InstructorName;
 
     private String InstructorEmail;

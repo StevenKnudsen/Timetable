@@ -751,8 +751,13 @@ public class ImportTimetableService {
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 Sheet plan = workbook.getSheetAt(i);
                 String sheetName = plan.getSheetName();
+                String planName = sheetName;
 
-                String planName = sheetName.contains("(") ? sheetName.substring(0, sheetName.indexOf("(") - 1) + sheetName.substring(sheetName.indexOf(")") + 1) : sheetName;
+//                if (program != "Petroleum") {
+//                    planName = sheetName.contains("(") ? sheetName.substring(0, sheetName.indexOf("(") - 1) + sheetName.substring(sheetName.indexOf(")") + 1) : sheetName;
+//                } else {
+//                    planName = sheetName;
+//                }
 
                 for (int j = 0; j < plan.getRow(0).getLastCellNum(); j++) {
                     for (int z = 1; z <= plan.getLastRowNum(); z++) {
@@ -794,8 +799,8 @@ public class ImportTimetableService {
                         .setCredit(getCell(sheet.getCell(4, i)))
                         .setWeight(getCell(sheet.getCell(5, i)))
                         .setLec(getCell(sheet.getCell(15, i)))
-                        .setLab(getCell(sheet.getCell(16, i)))
-                        .setSem(getCell(sheet.getCell(17, i)))
+                        .setSem(getCell(sheet.getCell(16, i)))
+                        .setLab(getCell(sheet.getCell(17, i)))
                         .setTotalAu(getCell(sheet.getCell(18, i)))
                         .setMath(getCell(sheet.getCell(26, i)))
                         .setNaturalSciences(getCell(sheet.getCell(27, i)))
@@ -824,7 +829,18 @@ public class ImportTimetableService {
     }
 
     private String getCell(jxl.Cell cell) {
-        return cell.getContents();
+        String content = cell.getContents();
+
+        try {
+            double num = Double.parseDouble(content);
+            if ((num == Math.floor(num) && num != 0.0) || num == 0.0) {
+                return String.valueOf((int) num); // Convert to integer if no decimal places or if it's 0.0
+            }
+        } catch (NumberFormatException e) {
+            return content;
+        }
+
+        return content;
     }
 
     /*

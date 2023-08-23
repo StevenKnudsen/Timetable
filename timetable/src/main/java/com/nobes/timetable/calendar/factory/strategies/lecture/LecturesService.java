@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,7 +29,7 @@ import java.util.stream.Stream;
  * This class represents a concrete implementation of the UniComponentStrategy interface for handling lecture information.
  * The lecture information is retrieved based on the course names, and the returned HashMap
  * contains the course name as key and an ArrayList of LectureVO objects as value.
- * */
+ */
 @Component(value = "1")
 @Slf4j
 public class LecturesService implements UniComponentStrategy {
@@ -46,11 +49,12 @@ public class LecturesService implements UniComponentStrategy {
 
     /**
      * rewrite the handle function in public interface to retrieve lecture information for the given course names and term
+     *
      * @param names an ArrayList of course names
-     * @param term a string representing the selected term
+     * @param term  a string representing the selected term
      * @return a HashMap containing all the detailed lecture information for the given course names
      * @throws Exception if an error occurs while retrieving the lecture information
-     * */
+     */
     @Override
     public HashMap handle(ArrayList<String> names, String term) throws Exception {
 
@@ -97,8 +101,28 @@ public class LecturesService implements UniComponentStrategy {
                 lectureVO.setTimes(times);
                 lectureVO.setSection(section);
 
+                // get the work term course description
+                NobesVisualizerCourse workTermCourse = visualizerCourseService.getOne(new LambdaQueryWrapper<NobesVisualizerCourse>()
+                        .eq(NobesVisualizerCourse::getCatalog, section.trim())
+                        .eq(NobesVisualizerCourse::getSubject, "WKEXP"), false);
+
+                String description = "";
+
+                if (workTermCourse != null) {
+                    String progUnits = workTermCourse.getProgUnits();
+                    String calcFeeIndex = workTermCourse.getCalcFeeIndex();
+                    String duration = workTermCourse.getDuration();
+                    String alphaHours = workTermCourse.getAlphaHours();
+                    String courseDescription = workTermCourse.getCourseDescription();
+
+                    description = "★ " + progUnits.replaceAll("[^0-9]", "") + " (fi " + calcFeeIndex + ") " + "(" + duration + ", " + alphaHours + ") " + courseDescription;
+                }
+
+                lectureVO.setDescp(description);
+
                 lecs.add(lectureVO);
                 lecMap.put(courseName, lecs);
+
             } else {
                 // find the catalog and subject of the given course
                 Pattern pattern = Pattern.compile("\\d+");
@@ -111,6 +135,14 @@ public class LecturesService implements UniComponentStrategy {
                         .eq(NobesTimetableCourse::getCatalog, catalog)
                         .eq(NobesTimetableCourse::getSubject, subject)
                         .eq(NobesTimetableCourse::getAppliedTerm, term), false);
+
+                // in case of CH E 243A or CH E 243A
+                if (course == null) {
+                    course = courseSelectService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+                            .like(NobesTimetableCourse::getCatalog, catalog + "_")
+                            .eq(NobesTimetableCourse::getSubject, subject)
+                            .eq(NobesTimetableCourse::getAppliedTerm, term), false);
+                }
 
                 // find the accreditation units information and store to AUCount
                 NobesTimetableAu au = iNobesTimetableAuService.getOne(new LambdaQueryWrapper<NobesTimetableAu>()

@@ -67,9 +67,21 @@ public class OptimizeService {
         LinkedHashMap<String, LinkedHashMap<String, ArrayList<ArrayList<List<Integer>>>>> courseCoordinateMap = new LinkedHashMap<>();
 
         for (String course : courseList) {
-            String[] parts = course.split("\\s+", 2);
-            String subject = parts[0].trim();
-            String catalog = parts[1].trim();
+            String clearCourseName = course.replaceAll(" Lab", "").replaceAll(" Sem", "");
+            String[] parts = clearCourseName.split(" ");
+            String subject;
+            String catalog;
+
+
+            if (parts.length < 3) {
+                // "MATH 100"
+                subject = parts[0].trim();
+                catalog = parts[1].trim();
+            } else {
+                // "EN PH 131"
+                subject = parts[0] + " " + parts[1];
+                catalog = parts[2];
+            }
 
             if (catalog.toLowerCase().contains("lab")) {
                 catalog = catalog.substring(0, catalog.toLowerCase().indexOf(" lab"));
@@ -123,7 +135,7 @@ public class OptimizeService {
     }
 
     /**
-     * use recursion to
+     * use recursion to generate the timetable
      * */
     public Boolean generateSchedule(Integer courseIndex) throws Exception {
 
