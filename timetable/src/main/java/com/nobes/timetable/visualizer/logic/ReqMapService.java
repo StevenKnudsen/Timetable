@@ -31,6 +31,13 @@ public class ReqMapService {
     @Resource
     ReqService rService;
 
+    /**
+     * This function is used to get prerequisites/postrequisites/corequisites information of all the courses
+     * in a selected program and selected plan
+     *
+     * @param visualDTO visualDTO containing the selected program name and selected plan name
+     * @return a Hashmap which keys are course name and values are the course's requisites
+     */
     public HashMap getCourseReqMap(VisualDTO visualDTO) throws Exception {
 
         HashMap<String, ReqVO> reqMap = new HashMap<>();
@@ -117,6 +124,9 @@ public class ReqMapService {
         return reqMap;
     }
 
+    /**
+     * get the requisites of a single course and add to map
+     * */
     public void getReq(HashMap<String, ReqVO> reqMap, String course) {
 
         Pattern pattern = Pattern.compile("\\d+");
@@ -143,6 +153,10 @@ public class ReqMapService {
         reqMap.put(course, reqVO);
     }
 
+
+    /**
+     * Deal with or case
+     */
     public ArrayList<String> getOrCaseReq(ArrayList<String> reqs) {
 
         for (String requisite : reqs) {

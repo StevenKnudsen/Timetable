@@ -62,6 +62,37 @@ public class CoreController {
             return ResultBody.success(e.getMessage());
         }
     }
+//
+//    /**
+//     * Update the scheduler course information
+//     *
+//     * @throws Exception if an error occurs
+//     */
+//    @PostMapping("/timeTableUpdate")
+//    public ResultBody timeTableUpdate(@RequestPart("file") List<MultipartFile> files) throws Exception {
+//
+//        try {
+//            for (MultipartFile file : files) {
+//                File convFile = File.createTempFile("temp", ".xls");
+//                // transfer the multipart file to the temp file
+//                file.transferTo(convFile);
+//
+//                importTimetableService.truncate();
+//
+//                importTimetableService.excelImport(convFile);
+//
+//                importTimetableService.courseUpdate();
+//
+//            }
+//
+//            return ResultBody.success("Scheduler Courses upload succeed");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResultBody.success(e.getMessage());
+//        }
+//    }
+
 
     /**
      * api for importing the sequence table into database

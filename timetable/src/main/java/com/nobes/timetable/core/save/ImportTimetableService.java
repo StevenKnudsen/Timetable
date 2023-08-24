@@ -439,9 +439,9 @@ public class ImportTimetableService {
         log.info("Table Import Complete");
     }
 
-    /*
+    /**
      * truncate nobes_timetable_table
-     * */
+     */
     public void truncate() throws Exception {
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_table";
@@ -700,6 +700,64 @@ public class ImportTimetableService {
         }
     }
 
+//    public void courseUpdate() {
+//        // get all the new data
+//        List<NobesTimetableTable> courses = TableService.list(null);
+//
+//        for (NobesTimetableTable course : courses) {
+//            String subject = course.getSubject();
+//            String catalog = course.getCatalog();
+//            String term = course.getShortDesc().replaceAll("\\d", "").trim();
+//
+//            NobesTimetableCourse oldCourse = iCourseService.getOne(new LambdaQueryWrapper<NobesTimetableCourse>()
+//                    .eq(NobesTimetableCourse::getSubject, subject)
+//                    .eq(NobesTimetableCourse::getCatalog, catalog)
+//                    .eq(NobesTimetableCourse::getAppliedTerm, term), false);
+//
+//            // if the course exists in the database
+//            if (oldCourse != null) {
+//                Integer courseId = oldCourse.getCourseId();
+//
+//                if (course.getComponent().toLowerCase().contains("lec")) {
+//
+//                    // update the lecture Info if differs
+//                    lecUpdate(courseId, course);
+//                }
+//            }
+//
+//        }
+//    }
+//
+//    public void lecUpdate(Integer courseId, NobesTimetableTable course) {
+//        NobesTimetableLecture oldLecture = iLecService.getOne(new LambdaQueryWrapper<NobesTimetableLecture>()
+//                .eq(NobesTimetableLecture::getCourseId, courseId)
+//                .eq(NobesTimetableLecture::getSect, course.getSect()), false);
+//
+//        NobesTimetableLecture newLecture = OrikaUtils.convert(course, NobesTimetableLecture.class);
+//
+//        if (oldLecture != null) {
+//            if (oldLecture != newLecture) {
+//                oldLecture.setHrsFrom(newLecture.getHrsFrom())
+//                        .setHrsTo(newLecture.getHrsTo())
+//                        .setMon(newLecture.getMon())
+//                        .setTues(newLecture.getTues())
+//                        .setWed(newLecture.getWed())
+//                        .setThrus(newLecture.getThrus())
+//                        .setFri(newLecture.getFri())
+//                        .setPlace(newLecture.getPlace())
+//                        .setLocation(newLecture.getLocation())
+//                        .setInstructorName(newLecture.getInstructorName())
+//                        .setInstructorEmail(newLecture.getInstructorEmail());
+//            }
+//
+//            iLecService.updateById(oldLecture);
+//        } else {
+//            //TODO: add the newSection to the database
+//            newLecture.setCourseId(courseId);
+//            iLecService.save(newLecture);
+//        }
+//    }
+
     /**
      * save the info from sequence Excel files into sequence table in the database
      *
@@ -752,12 +810,6 @@ public class ImportTimetableService {
                 Sheet plan = workbook.getSheetAt(i);
                 String sheetName = plan.getSheetName();
                 String planName = sheetName;
-
-//                if (program != "Petroleum") {
-//                    planName = sheetName.contains("(") ? sheetName.substring(0, sheetName.indexOf("(") - 1) + sheetName.substring(sheetName.indexOf(")") + 1) : sheetName;
-//                } else {
-//                    planName = sheetName;
-//                }
 
                 for (int j = 0; j < plan.getRow(0).getLastCellNum(); j++) {
                     for (int z = 1; z <= plan.getLastRowNum(); z++) {
@@ -843,9 +895,9 @@ public class ImportTimetableService {
         return content;
     }
 
-    /*
+    /**
      * truncate nobes_timetable_au
-     * */
+     */
     public void truncateAU() throws Exception {
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_au";
@@ -856,9 +908,9 @@ public class ImportTimetableService {
         connection.close();
     }
 
-    /*
+    /**
      * truncate nobes_timetable_sequence
-     * */
+     */
     public void truncateSequence() throws Exception {
         Connection connection = DriverManager.getConnection(url, username, password);
         String sql = "TRUNCATE TABLE nobes_timetable_sequence";
@@ -868,6 +920,5 @@ public class ImportTimetableService {
         preparedStatement.close();
         connection.close();
     }
-
 
 }
