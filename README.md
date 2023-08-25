@@ -35,4 +35,18 @@ ___
 
 This comprehensive visualizer is designed to offer engineering students at the University of Alberta a holistic view of their course structure, allowing for effective planning and informed decision-making.
 
+**Navigating the Scheduler Page**
 
+1. **Accessing the Scheduler**: Navigate to the Scheduler page by clicking on the "Scheduler" option in the tab header.
+
+2. **Term Selection**: Begin by selecting a specific academic term. Once selected, all associated lectures, labs, and seminars for that term will pop up for viewing.
+
+3. **Course Scheduling**:
+   + **Drag to View Times**: Drag a course to the right-hand side table to view available time slots.
+   + **View Course and Section Information**: Upon dragging a course, detailed course and section information will pop up below the course tab. This allows you to review specific section details, aiding in informed decision-making.
+   + **Select and Drop**: With the section information in view, choose your preferred time slot and section, and then drop the course tab into the desired slot.
+Note: Be cautious not to drop a course into a slot if there's a time conflict with another course already scheduled.
+
+4. **Finalizing the Schedule**: Continue dragging and dropping courses until you've built your desired schedule for the term.
+
+By leveraging this Scheduler tool, students can efficiently plan out their academic terms, ensuring a balanced and conflict-free schedule.
