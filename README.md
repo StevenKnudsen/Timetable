@@ -63,3 +63,13 @@ Note: Be cautious not to drop a course into a slot if there's a time conflict wi
 ![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/46ac588d-cda7-4ad8-b4cd-f6dc4e887a4a)
 
 By leveraging this Scheduler tool, students can efficiently plan out their academic terms, ensuring a balanced and conflict-free schedule.
+
+**Navigating the Result Page**
+
+1. **Accessing the Result Page**: After you have made your selections and organized your schedule, you can proceed to the Result Page for a consolidated view of both the visualizer and scheduler's outputs.
+
+2. **Comprehensive Overview**: The Result Page presents a unified summary, displaying all the course information related to the engineering program you've selected.
+
+3. **Printing the Information**: For a hardcopy reference or to share with advisors and peers, utilize the "Print" option to obtain a printout of the entire selected program's course details.
+
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/c890074e-1ecc-4f5f-bf47-970161b39750)
