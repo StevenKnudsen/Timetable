@@ -7,3 +7,4 @@ This interactive web application is developed using the SpringBoot framework, bu
 Visualizer: Showcasing a comprehensive diagram, it highlights the various program sequences available in engineering programs at the University of Alberta.
 
 Scheduler: Apart from visualization, the application empowers students to craft their academic schedule. With the convenience of dragging and dropping courses, students can effortlessly design their educational trajectory.
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/80bd4c1b-07b8-4eec-b429-e268d8e1f0ea)
