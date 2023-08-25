@@ -41,12 +41,25 @@ This comprehensive visualizer is designed to offer engineering students at the U
 
 2. **Term Selection**: Begin by selecting a specific academic term. Once selected, all associated lectures, labs, and seminars for that term will pop up for viewing.
 
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/faa04d2b-6fa8-4288-acc6-c2baf126cd02)
+
 3. **Course Scheduling**:
    + **Drag to View Times**: Drag a course to the right-hand side table to view available time slots.
    + **View Course and Section Information**: Upon dragging a course, detailed course and section information will pop up below the course tab. This allows you to review specific section details, aiding in informed decision-making.
    + **Select and Drop**: With the section information in view, choose your preferred time slot and section, and then drop the course tab into the desired slot.
+   
 Note: Be cautious not to drop a course into a slot if there's a time conflict with another course already scheduled.
 
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/bcdcab8e-0ef0-4220-b5a3-2fd275d7dc23)
+
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/8ea84208-b618-49d4-83c4-2b8f1a0f8ea3)
+
 4. **Finalizing the Schedule**: Continue dragging and dropping courses until you've built your desired schedule for the term.
+
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/d3e097a4-8c42-49a8-9d6e-f5f6de1e287e)
+
+5. **Exporting Your Schedule:** Once satisfied with your schedule, click on the "Export" or "Download" button to save your created schedule as a PDF.
+
+![image](https://github.com/xiangpen-1412/Timetable/assets/123021355/46ac588d-cda7-4ad8-b4cd-f6dc4e887a4a)
 
 By leveraging this Scheduler tool, students can efficiently plan out their academic terms, ensuring a balanced and conflict-free schedule.
